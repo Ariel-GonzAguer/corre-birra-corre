@@ -24,6 +24,10 @@ const borracho = add([sprite("borracho"), "borracho", "malo"]);
 loadSprite("gato", "./sprites/gato-rojo-bueno.png");
 const gato = add([sprite("gato"), "gato", "bueno"]);
 
+// bacteria sprite
+loadSprite("bacteria", "./sprites/bacteria.png");
+const bacteria = add([sprite("bacteria"), "bacteria", "malo"]);
+
 // fondo para el menú
 loadSprite("fondo-menu", "./sprites/fondo-menu.png");
 
@@ -216,6 +220,7 @@ scene("juego", () => {
     const opciones = [
       { name: "borracho", tag: "borracho" },
       { name: "gato", tag: "gato" },
+      { name: "bacteria", tag: "bacteria" },
     ];
     const elegido = opciones[Math.floor(rand(0, opciones.length))];
 
@@ -235,7 +240,7 @@ scene("juego", () => {
         const y = height() - 60;
 
         // decidir área por tipo
-        const areaScale = elegido.name === "borracho" ? 0.7 : 0.8;
+        const areaScale = elegido.name === "borracho" || elegido.name === "bacteria" ? 0.7 : 0.8;
         // calcular offset para centrar el hitbox dentro del sprite escalado
         const scaledW = sprEnemigo.width * scaleVal;
         const scaledH = sprEnemigo.height * scaleVal;
@@ -256,8 +261,13 @@ scene("juego", () => {
         ]);
         // si es borracho, detectar cuando salga por la izquierda para otorgar puntos
         if (elegido.name === "borracho") {
+          // detectar cuando el borracho ha salido completamente por la izquierda
+          // usando la anchura escalada para tener en cuenta el tamaño del sprite
           obj.action(() => {
-            if (obj.pos.x < -50) {
+            // usar el ancho real del objeto si está disponible (obj.width),
+            // en caso contrario usar scaledW calculado previamente
+            const renderW = typeof obj.width === "number" ? obj.width : scaledW;
+            if (obj.pos.x + renderW < 0) {
               score += 20;
               scoreLabel.text = score;
               destroy(obj);
