@@ -1,10 +1,11 @@
 {
-	"name": "myGame",
+	"name": "corre-birra-corr",
 	"type": "module",
 	"scripts": {
 		"build": "vite build",
 		"dev": "vite",
 		"preview": "vite preview",
+		"type-check": "tsc --noEmit",
 		"zip": "pnpm run build && mkdir -p dist && zip -r dist/game.zip dist -x \"**/.DS_Store\""
 	},
 	"dependencies": {
@@ -12,6 +13,8 @@
 	},
 	"devDependencies": {
 		"@types/node": "24.5.2",
-		"vite": "7.1.7"
+		"typescript": "5.9.2",
+		"vite": "7.1.7",
+		"vite-plugin-checker": "0.10.3"
 	}
 }

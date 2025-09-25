@@ -1,4 +1,5 @@
 import { defineConfig } from "vite";
+import checker from 'vite-plugin-checker';
 
 const kaplayCongrats = () => {
     return {
@@ -33,5 +34,6 @@ export default defineConfig({
     plugins: [
         // Disable messages removing this line
         kaplayCongrats(),
+        checker({ typescript: true }),
     ],
 });
