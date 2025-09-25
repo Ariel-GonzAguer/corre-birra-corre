@@ -144,43 +144,42 @@ scene("juego", () => {
     z(2),
   ]);
 
-  // Reproducir la animación con tecla
-  onKeyDown("a", () => {
-    birra.play("correr");
+  // manejar la birra
+  birra.onKeyPress("right", () => {
+    birra.pos.x += 30;
+  });
+  birra.onKeyPress("left", () => {
+    birra.pos.x -= 30;
   });
 
-  // Detener la animación
-  onKeyDown("s", () => {
-    birra.stop();
-  });
 
   // Controlar el salto
-    // control de saltos (max 1 salto seguido)
-    let jumpCount = 0;
-    const maxJumps = 1;
-    // usar onKeyPress para asegurar que cada pulsación cuenta
-    onKeyPress("space", () => {
-      if (jumpCount < maxJumps) {
-        birra.jump(900);
-        jumpCount++;
-      }
-    });
+  // control de saltos (max 1 salto seguido)
+  let jumpCount = 0;
+  const maxJumps = 1;
+  // usar onKeyPress para asegurar que cada pulsación cuenta
+  onKeyPress("space", () => {
+    if (jumpCount < maxJumps) {
+      birra.jump(900);
+      jumpCount++;
+    }
+  });
 
-    // Resetear contador al tocar el suelo: doble mecanismo
-    birra.onCollide("ground", () => {
-      jumpCount = 0;
-    });
-    // fallback: si la birra está en la Y del suelo, resetear
-    const groundY = height() - 60;
-    onUpdate(() => {
-      if (birra.pos && typeof birra.pos.y === "number") {
-        if (birra.pos.y >= groundY - 1) {
-          jumpCount = 0;
-        }
+  // Resetear contador al tocar el suelo: doble mecanismo
+  birra.onCollide("ground", () => {
+    jumpCount = 0;
+  });
+  // fallback: si la birra está en la Y del suelo, resetear
+  const groundY = height() - 60;
+  onUpdate(() => {
+    if (birra.pos && typeof birra.pos.y === "number") {
+      if (birra.pos.y >= groundY - 1) {
+        jumpCount = 0;
       }
-    });
+    }
+  });
 
-  birra.onCollide("tree", () => {
+  birra.onCollide("borracho", () => {
     shake();
     destroy(birra);
     go("lose");
@@ -189,19 +188,30 @@ scene("juego", () => {
   // piso
   add([
     rect(width(), 60),
-      pos(0, height() - 60),
+    pos(0, height() - 60),
     outline(4),
     area(),
     body({ isStatic: true }),
     color(194, 194, 194),
-      "ground",
-      z(1),
+    "ground",
+    z(1),
   ]);
 
   // aparición random de obstáculos: borracho o gato (alineados y escalados a la birra)
+  // contador de puntaje y etiqueta (moved antes del spawn para que esté disponible)
+  let score = 0;
+  // fondo para el score
+  add([rect(80, 40), pos(16, 16), color(0, 0, 0), opacity(0.5), z(5)]);
+  const scoreLabel = add([
+    text(score, { size: 32 }),
+    pos(24, 24),
+    color(255, 255, 255),
+    z(6),
+  ]);
+
   function genteRandom() {
     // generar una velocidad compartida para esta aparición
-    const speed = rand(140, 260);
+    const speed = 350;
     // elegir aleatoriamente entre 'borracho' y 'gato'
     const opciones = [
       { name: "borracho", tag: "borracho" },
@@ -224,30 +234,39 @@ scene("juego", () => {
         // usar siempre la Y del suelo para que no aparezcan volando
         const y = height() - 60;
 
-        add([
+        // decidir área por tipo
+        const areaScale = elegido.name === "borracho" ? 0.7 : 0.8;
+        // calcular offset para centrar el hitbox dentro del sprite escalado
+        const scaledW = sprEnemigo.width * scaleVal;
+        const scaledH = sprEnemigo.height * scaleVal;
+        const offsetX = (scaledW * (1 - areaScale)) / 2;
+        const offsetY = -(scaledH * (1 - areaScale)) / 2;
+
+        const obj = add([
           sprite(elegido.name),
           pos(width(), y),
+          // usar botleft igual que la birra para coherencia
           anchor("botleft"),
           scale(scaleVal),
-          area(),
+          // área ajustada por tipo y centrada
+          area({ scale: areaScale, offset: vec2(offsetX, offsetY) }),
           move(LEFT, speed),
           elegido.tag,
           z(1),
         ]);
+        // si es borracho, detectar cuando salga por la izquierda para otorgar puntos
+        if (elegido.name === "borracho") {
+          obj.action(() => {
+            if (obj.pos.x < -50) {
+              score += 20;
+              scoreLabel.text = score;
+              destroy(obj);
+            }
+          });
+        }
+        // si es gato, sumar puntos al colisionar con birra (handler abajo)
       })
-      .catch(() => {
-        // fallback visual si las sprites no se han cargado aún
-        add([
-          rect(48, 64),
-          area(),
-          outline(4),
-          pos(width(), height() - 60),
-          anchor("botleft"),
-          color(255, 180, 255),
-          move(LEFT, speed || 160),
-          "tree",
-        ]);
-      });
+      .catch(() => {});
 
     // volver a llamar la función tras un intervalo aleatorio
     wait(rand(1, 5), () => {
@@ -257,21 +276,14 @@ scene("juego", () => {
   // activar el spawn
   genteRandom();
 
-  let score = 0;
-  // fondo para el score
-  add([rect(80, 40), pos(16, 16), color(0, 0, 0), opacity(0.5), z(5)]);
-  const scoreLabel = add([
-    text(score, { size: 32 }),
-    pos(24, 24),
-    color(255, 255, 255),
-    z(6),
-  ]);
-
-  // increment score every frame
-  onUpdate(() => {
-    score++;
+  // sumar puntos al tocar un gato
+  birra.onCollide("gato", () => {
+    score += 100;
     scoreLabel.text = score;
+    destroy(gato);
   });
+
+  birra.play("correr");
 });
 
 scene("lose", () => {
