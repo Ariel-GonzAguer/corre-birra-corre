@@ -568,7 +568,7 @@ scene("perdido", () => {
   ]);
 
   startBtn.onClick(() => {
-    go("menu");
+    window.location.reload();
   });
 });
 
