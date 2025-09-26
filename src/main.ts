@@ -220,6 +220,8 @@ scene("juego", () => {
     z(6),
   ]);
 
+
+
   // manejar la cerveza
   cerveza.onKeyPress("right", () => {
     cerveza.pos.x += 30;
@@ -232,6 +234,121 @@ scene("juego", () => {
   // control de saltos (max 1 salto seguido)
   let jumpCount = 0;
   const maxJumps = 1;
+
+  // Controles táctiles para móviles
+  // Detectar si es un dispositivo móvil
+  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 'ontouchstart' in window;
+  
+  if (isMobile) {
+    // Botón de salto (centro-derecha)
+    const jumpButton = add([
+      rect(80, 80),
+      pos(width() - 100, height() - 100),
+      color(255, 255, 255),
+      opacity(0.7),
+      anchor("center"),
+      z(10),
+      "jumpButton"
+    ]);
+    
+    // Texto del botón de salto
+    add([
+      text("↑", { size: 48 }),
+      pos(width() - 100, height() - 100),
+      color(0, 0, 0),
+      anchor("center"),
+      z(11)
+    ]);
+
+    // Botón izquierda
+    const leftButton = add([
+      rect(70, 70),
+      pos(30, height() - 100),
+      color(255, 255, 255),
+      opacity(0.7),
+      anchor("center"),
+      z(10),
+      "leftButton"
+    ]);
+    
+    // Texto del botón izquierda
+    add([
+      text("←", { size: 36 }),
+      pos(30, height() - 100),
+      color(0, 0, 0),
+      anchor("center"),
+      z(11)
+    ]);
+
+    // Botón derecha
+    const rightButton = add([
+      rect(70, 70),
+      pos(120, height() - 100),
+      color(255, 255, 255),
+      opacity(0.7),
+      anchor("center"),
+      z(10),
+      "rightButton"
+    ]);
+    
+    // Texto del botón derecha
+    add([
+      text("→", { size: 36 }),
+      pos(120, height() - 100),
+      color(0, 0, 0),
+      anchor("center"),
+      z(11)
+    ]);
+
+    // Eventos táctiles para el botón de salto
+    jumpButton.onClick(() => {
+      if (jumpCount < maxJumps) {
+        cerveza.jump(900);
+        jumpCount++;
+      }
+    });
+
+    // Eventos táctiles para movimiento
+    leftButton.onClick(() => {
+      cerveza.pos.x -= 30;
+    });
+
+    rightButton.onClick(() => {
+      cerveza.pos.x += 30;
+    });
+
+    // Variables para controles táctiles continuos
+    let leftPressed = false;
+    let rightPressed = false;
+
+    // Eventos de toque para movimiento continuo
+    leftButton.onHover(() => {
+      leftPressed = true;
+    });
+
+    leftButton.onHoverEnd(() => {
+      leftPressed = false;
+    });
+
+    rightButton.onHover(() => {
+      rightPressed = true;
+    });
+
+    rightButton.onHoverEnd(() => {
+      rightPressed = false;
+    });
+
+    // Actualización continua para movimiento
+    onUpdate(() => {
+      if (leftPressed) {
+        cerveza.pos.x -= 3;
+      }
+      if (rightPressed) {
+        cerveza.pos.x += 3;
+      }
+    });
+  }
+
   // saltos
   onKeyPress("space", () => {
     if (jumpCount < maxJumps) {
