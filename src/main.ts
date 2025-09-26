@@ -6,6 +6,9 @@ kaplay({
   // debugKey: "p",
 });
 
+// puntuación
+let score = 0;
+
 // sprites de personajes y constantes de personajes
 // birra
 loadSprite("cerveza", "./sprites/beer-sprite.png", {
@@ -185,8 +188,6 @@ scene("juego", () => {
   // gravedad → va dentro de la escena
   setGravity(1900);
 
-  // puntuación
-  let score = 0;
   // fondo para el score
   add([rect(80, 40), pos(16, 16), color(0, 0, 0), opacity(0.5), z(5)]);
   const scoreLabel = add([
@@ -220,8 +221,6 @@ scene("juego", () => {
     z(6),
   ]);
 
-
-
   // manejar la cerveza
   cerveza.onKeyPress("right", () => {
     cerveza.pos.x += 30;
@@ -237,8 +236,11 @@ scene("juego", () => {
 
   // Controles táctiles para móviles
   // Detectar si es un dispositivo móvil
-  const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 'ontouchstart' in window;
-  
+  const isMobile =
+    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+      navigator.userAgent
+    ) || "ontouchstart" in window;
+
   if (isMobile) {
     // Botón de salto (centro-derecha de la mitad de pantalla)
     const jumpButton = add([
@@ -249,16 +251,16 @@ scene("juego", () => {
       opacity(0.8),
       anchor("center"),
       z(10),
-      "jumpButton"
+      "jumpButton",
     ]);
-    
+
     // Texto del botón de salto
     add([
       text("↑", { size: 64 }),
       pos(width() * 0.75, height() * 0.5),
       color(0, 0, 0),
       anchor("center"),
-      z(11)
+      z(11),
     ]);
 
     // Botón izquierda (centro-izquierda de la mitad de pantalla)
@@ -270,16 +272,16 @@ scene("juego", () => {
       opacity(0.8),
       anchor("center"),
       z(10),
-      "leftButton"
+      "leftButton",
     ]);
-    
+
     // Texto del botón izquierda
     add([
       text("←", { size: 56 }),
       pos(width() * 0.15, height() * 0.5),
       color(0, 0, 0),
       anchor("center"),
-      z(11)
+      z(11),
     ]);
 
     // Botón derecha (al lado del botón izquierda)
@@ -291,16 +293,16 @@ scene("juego", () => {
       opacity(0.8),
       anchor("center"),
       z(10),
-      "rightButton"
+      "rightButton",
     ]);
-    
+
     // Texto del botón derecha
     add([
       text("→", { size: 56 }),
       pos(width() * 0.35, height() * 0.5),
       color(0, 0, 0),
       anchor("center"),
-      z(11)
+      z(11),
     ]);
 
     // Variables para controles táctiles
@@ -316,14 +318,14 @@ scene("juego", () => {
           jumpCount++;
         }
       }
-      
+
       // Verificar clic en botón izquierdo
       if (leftButton.isHovering()) {
         leftPressed = true;
         cerveza.pos.x -= 30;
       }
-      
-      // Verificar clic en botón derecho  
+
+      // Verificar clic en botón derecho
       if (rightButton.isHovering()) {
         rightPressed = true;
         cerveza.pos.x += 30;
@@ -537,12 +539,30 @@ scene("perdido", () => {
     z(2),
   ]);
 
+  add([
+    text(`Puntuación: ${score}`, { size: 32 }),
+    pos(width() / 2, height() / 2 - 370),
+    anchor("center"),
+    color(255, 0, 0),
+    z(2),
+  ]);
+
+  // fondo para el texto de puntuación
+  add([
+    rect(300, 50),
+    pos(width() / 2, height() / 2 - 370),
+    anchor("center"),
+    color(0, 0, 0),
+    opacity(0.7),
+    z(1),
+  ]);
+
   startBtn.onClick(() => {
     go("menu");
   });
 });
 
-// go("perdido");
+go("perdido");
 
 // DESCOMENTAR AL FINAL
-go("menu");
+// go("menu");
