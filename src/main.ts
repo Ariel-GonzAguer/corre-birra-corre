@@ -381,14 +381,24 @@ scene("perdido", () => {
 
   // texto de perder
   add([
-    text("¡Perdiste!", {
-      size: 48,
-      color: rgb(255, 255, 255),
+    text("¡Se tomaron la birra!", {
+      size: 100,
       width: width(),
       align: "center",
     }),
-    pos(1000, 70),
+    color(255, 0, 0),
+    pos(center()),
     anchor("center"),
+    z(3),
+  ]);
+
+  // fondo para el texto de perder
+  add([
+    rect(1200, 200),
+    pos(center()),
+    anchor("center"),
+    color(0, 0, 0),
+    opacity(0.5),
     z(1),
   ]);
 });
