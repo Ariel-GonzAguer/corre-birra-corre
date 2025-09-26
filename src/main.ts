@@ -244,6 +244,7 @@ scene("juego", () => {
     const jumpButton = add([
       rect(80, 80),
       pos(width() - 100, height() - 100),
+      area(),
       color(255, 255, 255),
       opacity(0.7),
       anchor("center"),
@@ -264,6 +265,7 @@ scene("juego", () => {
     const leftButton = add([
       rect(70, 70),
       pos(30, height() - 100),
+      area(),
       color(255, 255, 255),
       opacity(0.7),
       anchor("center"),
@@ -284,6 +286,7 @@ scene("juego", () => {
     const rightButton = add([
       rect(70, 70),
       pos(120, height() - 100),
+      area(),
       color(255, 255, 255),
       opacity(0.7),
       anchor("center"),
@@ -300,51 +303,46 @@ scene("juego", () => {
       z(11)
     ]);
 
-    // Eventos táctiles para el botón de salto
-    jumpButton.onClick(() => {
-      if (jumpCount < maxJumps) {
-        cerveza.jump(900);
-        jumpCount++;
-      }
-    });
-
-    // Eventos táctiles para movimiento
-    leftButton.onClick(() => {
-      cerveza.pos.x -= 30;
-    });
-
-    rightButton.onClick(() => {
-      cerveza.pos.x += 30;
-    });
-
-    // Variables para controles táctiles continuos
+    // Variables para controles táctiles
     let leftPressed = false;
     let rightPressed = false;
 
-    // Eventos de toque para movimiento continuo
-    leftButton.onHover(() => {
-      leftPressed = true;
+    // Eventos de clic para cada botón
+    onMousePress(() => {
+      // Verificar clic en botón de salto
+      if (jumpButton.isHovering()) {
+        if (jumpCount < maxJumps) {
+          cerveza.jump(900);
+          jumpCount++;
+        }
+      }
+      
+      // Verificar clic en botón izquierdo
+      if (leftButton.isHovering()) {
+        leftPressed = true;
+        cerveza.pos.x -= 30;
+      }
+      
+      // Verificar clic en botón derecho  
+      if (rightButton.isHovering()) {
+        rightPressed = true;
+        cerveza.pos.x += 30;
+      }
     });
 
-    leftButton.onHoverEnd(() => {
+    // Liberar botones al soltar
+    onMouseRelease(() => {
       leftPressed = false;
-    });
-
-    rightButton.onHover(() => {
-      rightPressed = true;
-    });
-
-    rightButton.onHoverEnd(() => {
       rightPressed = false;
     });
 
-    // Actualización continua para movimiento
+    // Movimiento continuo mientras se mantiene presionado
     onUpdate(() => {
-      if (leftPressed) {
-        cerveza.pos.x -= 3;
+      if (leftPressed && leftButton.isHovering()) {
+        cerveza.pos.x -= 2;
       }
-      if (rightPressed) {
-        cerveza.pos.x += 3;
+      if (rightPressed && rightButton.isHovering()) {
+        cerveza.pos.x += 2;
       }
     });
   }
