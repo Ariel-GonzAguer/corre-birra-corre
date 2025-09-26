@@ -308,7 +308,7 @@ scene("juego", () => {
     // si la vida = 0, se pierde
     if (cerveza.hp() <= 0) {
       destroy(cerveza);
-      go("lose");
+      go("perdido");
     }
   });
 
@@ -316,7 +316,7 @@ scene("juego", () => {
     vidas = cerveza.hp();
     vidasLabel.text = vidas.toString();
     cerveza.hp(0);
-    go("lose");
+    go("perdido");
   });
 
   cerveza.onCollide("gato", () => {
@@ -359,7 +359,41 @@ scene("juego", () => {
   ]);
 });
 
-go("juego");
+// escena de perder
+// fondo del juego
+loadSprite("fondo-perdido", "./sprites/fondo-perdido.png");
+scene("perdido", () => {
+  // fondo responsive
+  getSprite("fondo-perdido").then((backgroundSprite) => {
+    if (backgroundSprite) {
+      const scaleX = width() / backgroundSprite.width;
+      const scaleY = height() / backgroundSprite.height;
+      const backgroundScale = Math.max(scaleX, scaleY);
+      add([
+        sprite("fondo-perdido"),
+        pos(width() / 2, height() / 2),
+        anchor("center"),
+        scale(backgroundScale),
+        z(-10),
+      ]);
+    }
+  });
+
+  // texto de perder
+  add([
+    text("¡Perdiste!", {
+      size: 48,
+      color: rgb(255, 255, 255),
+      width: width(),
+      align: "center",
+    }),
+    pos(1000, 70),
+    anchor("center"),
+    z(1),
+  ]);
+});
+
+go("perdido");
 
 // DESCOMENTAR AL FINAL
 // go("menu");
