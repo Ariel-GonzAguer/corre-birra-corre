@@ -1,0 +1,1 @@
+- los personas random no aparecen

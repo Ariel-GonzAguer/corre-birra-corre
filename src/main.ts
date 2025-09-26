@@ -6,7 +6,7 @@ kaplay({
   debugKey: "p",
 });
 
-// sprites de personajes y sprites
+// sprites de personajes y constantes de personajes
 // birra
 loadSprite("cerveza", "./sprites/beer-sprite.png", {
   sliceX: 2,
@@ -19,8 +19,29 @@ loadSprite("cerveza", "./sprites/beer-sprite.png", {
 // gato
 loadSprite("gato", "./sprites/gato-rojo-bueno.png");
 
+const gato = add([
+  sprite("gato"),
+  pos(rand(0, width()), 695),
+  scale(0.3),
+  area({ scale: 0.85 }),
+  body(),
+  anchor("botright"),
+  "gato",
+  "bueno",
+]);
+
 // borracho
 loadSprite("borracho", "./sprites/borracho.png");
+
+const borracho = add([
+  sprite("borracho"),
+  pos(rand(0, width()), 695),
+  area({ scale: 0.9 }),
+  body(),
+  anchor("botright"),
+  "borracho",
+  "malo",
+]);
 
 // bacteria
 loadSprite("bacteria", "./sprites/bacteria.png");
@@ -193,28 +214,31 @@ scene("juego", () => {
     jumpCount = 0;
   });
 
-  // borracho
-  add([
-    sprite("borracho"),
-    pos(rand(0, width()), 695),
-    area({ scale: 0.9 }),
-    body(),
-    anchor("botright"),
-    "borracho",
-    "malo",
-  ]);
+  // aparición de otros personajes
+  function aparecionPersonajes() {
+    const rapidez = 350;
+    const opciones = [
+      { name: "borracho", tag: "borracho" },
+      { name: "gato", tag: "gato" },
+      { name: "bacteria", tag: "bacteria" },
+    ];
 
-  // gato
-  const gato = add([
-    sprite("gato"),
-    pos(rand(0, width()), 695),
-    scale(0.3),
-    area({ scale: 0.85 }),
-    body(),
-    anchor("botright"),
-    "gato",
-    "bueno",
-  ]);
+    const personajeRandom = opciones[Math.floor(rand(0, opciones.length))];
+
+    const personajeAMostrar = add([
+      sprite(personajeRandom.name),
+      pos(rand(0, width()), 0),
+      anchor("botright"),
+      move(LEFT, rapidez),
+      personajeRandom.tag,
+      z(1),
+    ]);
+    wait(rand(1, 5), () => {
+      aparecionPersonajes();
+    });
+  }
+  // activar el spawn
+  aparecionPersonajes();
 
   // interacción entre personajes
   cerveza.onCollide("borracho", () => {
