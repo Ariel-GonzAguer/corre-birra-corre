@@ -386,7 +386,7 @@ scene("perdido", () => {
       width: width(),
       align: "center",
     }),
-    color(255, 0, 0),
+    color(255, 255, 255),
     pos(center()),
     anchor("center"),
     z(3),
@@ -401,9 +401,33 @@ scene("perdido", () => {
     opacity(0.5),
     z(1),
   ]);
+
+  const btnPos = vec2(width() / 2, height() / 2 + 200);
+  const startBtn = add([
+    rect(350, 60),
+    pos(btnPos),
+    anchor("center"),
+    color(40, 180, 40),
+    outline(6),
+    area(),
+    z(1),
+  ]);
+
+  // texto del botón para iniciar
+  add([
+    text("Volver al Inicio", { size: 36 }),
+    pos(btnPos),
+    anchor("center"),
+    color(255, 255, 255),
+    z(2),
+  ]);
+
+  startBtn.onClick(() => {
+    go("menu");
+  });
 });
 
-go("perdido");
+// go("perdido");
 
 // DESCOMENTAR AL FINAL
-// go("menu");
+go("menu");
