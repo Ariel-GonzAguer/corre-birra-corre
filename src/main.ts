@@ -202,12 +202,22 @@ scene("juego", () => {
     pos(0, height() - 60),
     area({ scale: 0.8 }),
     body(), // para que actúe con la gravedad
-    health(1),
-    anchor("botleft"), // Anclar desde la parte inferior izquierda
     health(3),
+    anchor("botleft"), // Anclar desde la parte inferior izquierda
     z(2),
     "cerveza",
     "player",
+  ]);
+
+  // vidas de la cerveza
+  let vidas = cerveza.hp();
+  // fondo para el score
+  add([rect(80, 40), pos(150, 16), color(0, 0, 0), opacity(0.5), z(5)]);
+  const vidasLabel = add([
+    text(vidas, { size: 32 }),
+    pos(160, 24),
+    color(255, 255, 255),
+    z(6),
   ]);
 
   // manejar la cerveza
@@ -293,6 +303,8 @@ scene("juego", () => {
     shake();
     addKaboom(cerveza.pos);
     cerveza.hurt(1);
+    vidas = cerveza.hp();
+    vidasLabel.text = vidas.toString();
     // si la vida = 0, se pierde
     if (cerveza.hp() <= 0) {
       destroy(cerveza);
@@ -301,6 +313,8 @@ scene("juego", () => {
   });
 
   cerveza.onCollide("bacteria", () => {
+    vidas = cerveza.hp();
+    vidasLabel.text = vidas.toString();
     cerveza.hp(0);
     go("lose");
   });
