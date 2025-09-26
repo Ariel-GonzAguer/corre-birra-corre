@@ -59,14 +59,22 @@ scene("menu", () => {
   // color de fondo en rgb
   setBackground(0, 0, 0);
 
-  // imagen de fondo
-  add([
-    sprite("fondo-menu"),
-    pos(250, 790),
-    anchor("botleft"),
-    scale(1),
-    z(-10),
-  ]);
+  // imagen de fondo responsive
+  getSprite("fondo-menu").then((menuSprite) => {
+    if (menuSprite) {
+      const scaleX = width() / menuSprite.width;
+      const scaleY = height() / menuSprite.height;
+      const menuScale = Math.max(scaleX, scaleY);
+      
+      add([
+        sprite("fondo-menu"),
+        pos(width() / 2, height() / 2),
+        anchor("center"),
+        scale(menuScale),
+        z(-10),
+      ]);
+    }
+  });
 
   // texto de título
   add([
@@ -117,7 +125,7 @@ scene("menu", () => {
   // logo Gato Rojo Lab
   add([
     sprite("gatoRojoLab"),
-    pos(width() / 2, 600),
+    pos(width() / 2, height() - 100),
     anchor("center"),
     scale(0.7),
     z(3),
@@ -126,7 +134,7 @@ scene("menu", () => {
   // fondo para logo
   add([
     rect(300, 175),
-    pos(width() / 2, 600),
+    pos(width() / 2, height() - 100),
     anchor("center"),
     color(0, 0, 0),
     opacity(0.7),
@@ -257,8 +265,22 @@ scene("juego", () => {
     cerveza.play("correr");
   });
 
-  // fondo
-  add([sprite("fondo"), pos(750, 310), anchor("center"), scale(1.35), z(-1)]);
+  // fondo responsive
+  getSprite("fondo").then((backgroundSprite) => {
+    if (backgroundSprite) {
+      const scaleX = width() / backgroundSprite.width;
+      const scaleY = height() / backgroundSprite.height;
+      const backgroundScale = Math.max(scaleX, scaleY);
+      
+      add([
+        sprite("fondo"), 
+        pos(width() / 2, height() / 2), 
+        anchor("center"), 
+        scale(backgroundScale), 
+        z(-1)
+      ]);
+    }
+  });
 
   // piso
   add([
@@ -273,7 +295,7 @@ scene("juego", () => {
   ]);
 });
 
-go("juego");
+// go("juego");
 
 // DESCOMENTAR AL FINAL
-// go("menu");
+go("menu");
