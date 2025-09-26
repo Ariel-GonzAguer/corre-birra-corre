@@ -240,13 +240,13 @@ scene("juego", () => {
   const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) || 'ontouchstart' in window;
   
   if (isMobile) {
-    // Botón de salto (centro-derecha)
+    // Botón de salto (centro-derecha de la mitad de pantalla)
     const jumpButton = add([
-      rect(80, 80),
-      pos(width() - 100, height() - 100),
+      rect(120, 120),
+      pos(width() * 0.75, height() * 0.5),
       area(),
       color(255, 255, 255),
-      opacity(0.7),
+      opacity(0.8),
       anchor("center"),
       z(10),
       "jumpButton"
@@ -254,20 +254,20 @@ scene("juego", () => {
     
     // Texto del botón de salto
     add([
-      text("↑", { size: 48 }),
-      pos(width() - 100, height() - 100),
+      text("↑", { size: 64 }),
+      pos(width() * 0.75, height() * 0.5),
       color(0, 0, 0),
       anchor("center"),
       z(11)
     ]);
 
-    // Botón izquierda
+    // Botón izquierda (centro-izquierda de la mitad de pantalla)
     const leftButton = add([
-      rect(70, 70),
-      pos(30, height() - 100),
+      rect(100, 100),
+      pos(width() * 0.15, height() * 0.5),
       area(),
       color(255, 255, 255),
-      opacity(0.7),
+      opacity(0.8),
       anchor("center"),
       z(10),
       "leftButton"
@@ -275,20 +275,20 @@ scene("juego", () => {
     
     // Texto del botón izquierda
     add([
-      text("←", { size: 36 }),
-      pos(30, height() - 100),
+      text("←", { size: 56 }),
+      pos(width() * 0.15, height() * 0.5),
       color(0, 0, 0),
       anchor("center"),
       z(11)
     ]);
 
-    // Botón derecha
+    // Botón derecha (al lado del botón izquierda)
     const rightButton = add([
-      rect(70, 70),
-      pos(120, height() - 100),
+      rect(100, 100),
+      pos(width() * 0.35, height() * 0.5),
       area(),
       color(255, 255, 255),
-      opacity(0.7),
+      opacity(0.8),
       anchor("center"),
       z(10),
       "rightButton"
@@ -296,8 +296,8 @@ scene("juego", () => {
     
     // Texto del botón derecha
     add([
-      text("→", { size: 36 }),
-      pos(120, height() - 100),
+      text("→", { size: 56 }),
+      pos(width() * 0.35, height() * 0.5),
       color(0, 0, 0),
       anchor("center"),
       z(11)
