@@ -241,7 +241,7 @@ scene("como-jugar", () => {
       text(
         "Instrucciones\n- Use el botón ↑ para saltar. ¡Puede hacer saltos dobles!\n- Use las flechas ← y → para moverse hacia atrás y adelante, respectivamente.\nImportante: Si retrocede mucho, la cerveza desaparece y hay que reiniciar el juego.\n- Si colisiona con un borracho pierde una vida ♥️.\n- Si toca una bacteria pierde el juego.\n- Si toca un lúpulo obtiene protección contra el siguiente borracho que llegue.\n- Si toca la cebada obtiene una vida extra",
         {
-          size: 24,
+          size: 32,
           color: rgb(255, 255, 255),
           width: 550, // ancho menor al rect del fondo (600) para dejar margen
           align: "left", // alineación izquierda para mejor legibilidad
@@ -255,7 +255,7 @@ scene("como-jugar", () => {
 
     // fondo para instrucciones
     add([
-      rect(600, height() - 50),
+      rect(700, height() - 150),
       pos(width() / 2, height() / 2),
       anchor("center"),
       color(0, 0, 0),
@@ -294,7 +294,7 @@ scene("como-jugar", () => {
   // botón iniciar
   const btnPos = vec2(width() / 2, height() / 2 + 250);
   const startBtn = add([
-    rect(250, 60),
+    rect(isMobile ? 300 : 250, 60),
     pos(btnPos),
     anchor("center"),
     color(40, 180, 40),
@@ -413,7 +413,7 @@ scene("juego", () => {
     // Texto del botón izquierda
     add([
       text("←", { size: 56 }),
-      pos(width() * 0.15, height() * 0.5),
+      pos(width() * 0.15, height() * 0.6),
       color(0, 0, 0),
       anchor("center"),
       z(11),
