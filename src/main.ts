@@ -3,7 +3,7 @@ import kaplay from "kaplay";
 import "kaplay/global";
 
 kaplay({
-  // debugKey: "p",
+  debugKey: "p",
 });
 
 // puntuación
@@ -371,6 +371,16 @@ scene("juego", () => {
   });
 
   // aparición de otros personajes
+  /**
+   * Genera un personaje aleatorio ("borracho", "gato" o "bacteria") en el borde derecho de la pantalla,
+   * moviéndolo hacia la izquierda a una velocidad fija. Cada personaje utiliza su propio scale y área de colisión.
+   * La función se programa a sí misma de nuevo tras un intervalo aleatorio entre 1.25 y 4 segundos,
+   * asegurando la aparición continua de personajes.
+   *
+   * Dependencias:
+   * - Supone que los objetos `borracho`, `gato` y `bacteria` están definidos con propiedades `scale` y `area`.
+   * - Utiliza funciones y objetos globales: `sprite`, `pos`, `width`, `height`, `anchor`, `move`, `LEFT`, `area`, `scale`, `z`, `add`, `wait` y `rand`.
+   */
   function aparecionPersonajes() {
     const rapidez = 350;
     const opciones = [
@@ -541,7 +551,7 @@ scene("perdido", () => {
 
   add([
     text(`Puntuación: ${score}`, { size: 32 }),
-    pos(width() / 2, height() / 2 - 370),
+    pos(width() / 2, height() / 2 - 340),
     anchor("center"),
     color(255, 0, 0),
     z(2),
@@ -550,7 +560,7 @@ scene("perdido", () => {
   // fondo para el texto de puntuación
   add([
     rect(300, 50),
-    pos(width() / 2, height() / 2 - 370),
+    pos(width() / 2, height() / 2 - 340),
     anchor("center"),
     color(0, 0, 0),
     opacity(0.7),
@@ -562,7 +572,5 @@ scene("perdido", () => {
   });
 });
 
-go("perdido");
-
 // DESCOMENTAR AL FINAL
-// go("menu");
+go("menu");
