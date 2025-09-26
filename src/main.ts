@@ -242,7 +242,7 @@ scene("juego", () => {
   if (isMobile) {
     // Botón de salto (centro-derecha de la mitad de pantalla)
     const jumpButton = add([
-      rect(120, 120),
+      rect(200, 200),
       pos(width() * 0.75, height() * 0.5),
       area(),
       color(255, 255, 255),
@@ -263,7 +263,7 @@ scene("juego", () => {
 
     // Botón izquierda (centro-izquierda de la mitad de pantalla)
     const leftButton = add([
-      rect(100, 100),
+      rect(200, 200),
       pos(width() * 0.15, height() * 0.5),
       area(),
       color(255, 255, 255),
@@ -284,7 +284,7 @@ scene("juego", () => {
 
     // Botón derecha (al lado del botón izquierda)
     const rightButton = add([
-      rect(100, 100),
+      rect(200, 200),
       pos(width() * 0.35, height() * 0.5),
       area(),
       color(255, 255, 255),
@@ -312,7 +312,7 @@ scene("juego", () => {
       // Verificar clic en botón de salto
       if (jumpButton.isHovering()) {
         if (jumpCount < maxJumps) {
-          cerveza.jump(900);
+          cerveza.jump(1000);
           jumpCount++;
         }
       }
@@ -350,7 +350,7 @@ scene("juego", () => {
   // saltos
   onKeyPress("space", () => {
     if (jumpCount < maxJumps) {
-      cerveza.jump(900);
+      cerveza.jump(1000);
       jumpCount++;
     }
   });
