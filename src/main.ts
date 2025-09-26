@@ -33,6 +33,34 @@ const gato = add([
   "bueno",
 ]);
 
+// lúpulo
+loadSprite("lupulo", "./sprites/lupulo.png");
+
+const lupulo = add([
+  sprite("lupulo"),
+  pos(rand(0, width()), 695),
+  scale(0.3),
+  area(),
+  body(),
+  anchor("botright"),
+  "lupulo",
+  "bueno",
+]);
+
+// cebada
+loadSprite("cebada", "./sprites/cebada.png");
+
+const cebada = add([
+  sprite("cebada"),
+  pos(rand(0, width()), 695),
+  scale(0.3),
+  area(),
+  body(),
+  anchor("botright"),
+  "cebada",
+  "bueno",
+]);
+
 // borracho
 loadSprite("borracho", "./sprites/borracho.png");
 
@@ -234,6 +262,9 @@ scene("juego", () => {
   let jumpCount = 0;
   const maxJumps = 1;
 
+  // sistema de inmunidad (escudo contra borrachos)
+  let tieneEscudo = false;
+
   // Controles táctiles para móviles
   // Detectar si es un dispositivo móvil
   const isMobile =
@@ -406,7 +437,7 @@ scene("juego", () => {
 
     const personajeRandom = opciones[Math.floor(rand(0, opciones.length))];
 
-    add([
+    const personaje = add([
       sprite(personajeRandom.name),
       pos(width(), height()), // Aparecen desde la derecha, a nivel del suelo
       anchor("botright"),
@@ -417,6 +448,14 @@ scene("juego", () => {
       z(1),
     ]);
 
+    // destruir personaje cuando la cerveza lo sobrepasa
+    personaje.onUpdate(() => {
+      if (personaje.pos.x < cerveza.pos.x) {
+        destroy(personaje);
+      }
+    });
+
+    // llamar a la función de nuevo tras un tiempo aleatorio
     wait(rand(1.25, 4), () => {
       aparecionPersonajes();
     });
@@ -425,8 +464,61 @@ scene("juego", () => {
   // activar el spawn
   aparecionPersonajes();
 
+  // aparición power-ups
+  function aparecionPowerUps() {
+    const rapidez = 200;
+    const opciones = [
+      {
+        name: "lupulo",
+        tag: "lupulo",
+        scale: lupulo.scale,
+        area: lupulo.area,
+      },
+      {
+        name: "cebada",
+        tag: "cebada",
+        scale: cebada.scale,
+        area: cebada.area,
+      },
+    ];
+
+    const powerUpRandom = opciones[Math.floor(rand(0, opciones.length))];
+
+    const powerUp = add([
+      sprite(powerUpRandom.name),
+      pos(width(), height()), // Aparecen desde la derecha, a nivel del suelo
+      anchor("botright"),
+      move(LEFT, rapidez),
+      area(powerUpRandom.area),
+      scale(powerUpRandom.scale),
+      powerUpRandom.tag,
+      z(1),
+    ]);
+    // destruir power-up cuando la cerveza lo sobrepasa
+    powerUp.onUpdate(() => {
+      if (powerUp.pos.x < cerveza.pos.x) {
+        destroy(powerUp);
+      }
+    });
+
+    // llamar a la función de nuevo tras un tiempo aleatorio
+    wait(rand(10, 20), () => {
+      aparecionPowerUps();
+    });
+  }
+
+  // activar el spawn
+  aparecionPowerUps();
+
   // interacción entre personajes
   cerveza.onCollide("borracho", () => {
+    if (tieneEscudo) {
+      // consumir el escudo y no recibir daño
+      tieneEscudo = false;
+      shake(); // shake para indicar que se bloqueó el ataque
+      return; // salir sin hacer daño
+    }
+
     shake();
     addKaboom(cerveza.pos);
     cerveza.hurt(1);
@@ -449,6 +541,18 @@ scene("juego", () => {
   cerveza.onCollide("gato", () => {
     score += 100;
     scoreLabel.text = score.toString();
+  });
+
+  // interacción power-ups
+  cerveza.onCollide("lupulo", () => {
+    // otorgar escudo de inmunidad contra borrachos
+    tieneEscudo = true;
+  });
+
+  cerveza.onCollide("cebada", () => {
+    cerveza.setHP(cerveza.hp() + 1);
+    vidas = "❤".repeat(cerveza.hp());
+    vidasLabel.text = vidas.toString();
   });
 
   // iniciar animación al cargar la escena
@@ -551,7 +655,7 @@ scene("perdido", () => {
 
   add([
     text(`Puntuación: ${score}`, { size: 32 }),
-    pos(width() / 2, height() / 2 - 340),
+    pos(width() / 2, height() / 2 - 240),
     anchor("center"),
     color(255, 0, 0),
     z(2),
@@ -560,7 +664,7 @@ scene("perdido", () => {
   // fondo para el texto de puntuación
   add([
     rect(300, 50),
-    pos(width() / 2, height() / 2 - 340),
+    pos(width() / 2, height() / 2 - 240),
     anchor("center"),
     color(0, 0, 0),
     opacity(0.7),
