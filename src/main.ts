@@ -3,7 +3,7 @@ import kaplay from "kaplay";
 import "kaplay/global";
 
 kaplay({
-  debugKey: "p",
+  // debugKey: "p",
 });
 
 // sprites de personajes y constantes de personajes
@@ -117,15 +117,15 @@ scene("menu", () => {
       width: width(),
       align: "center",
     }),
-    pos(width() / 2, 180),
+    pos(width() / 2, 200),
     anchor("center"),
     z(1),
   ]);
 
   // fondo para subtítulo
   add([
-    rect(550, 50),
-    pos(width() / 2, 180),
+    rect(600, 50),
+    pos(width() / 2, 200),
     anchor("center"),
     color(0, 0, 0),
     opacity(0.7),
