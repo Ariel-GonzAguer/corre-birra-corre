@@ -1,0 +1,2 @@
+- [ ] Ägregar power-ups (lupulo => escudo | malta => vida extra)
+- [ ] Optimizar rendimiento (eliminar objetos fuera de pantalla)

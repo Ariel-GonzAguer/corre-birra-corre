@@ -39,7 +39,7 @@ loadSprite("borracho", "./sprites/borracho.png");
 const borracho = add([
   sprite("borracho"),
   pos(rand(0, width()), 695),
-  scale(0.8),
+  scale(0.75),
   area(),
   body(),
   anchor("botleft"),
@@ -314,7 +314,7 @@ scene("juego", () => {
       // Verificar clic en botón de salto
       if (jumpButton.isHovering()) {
         if (jumpCount < maxJumps) {
-          cerveza.jump(1000);
+          cerveza.jump(1060);
           jumpCount++;
         }
       }
@@ -352,7 +352,7 @@ scene("juego", () => {
   // saltos
   onKeyPress("space", () => {
     if (jumpCount < maxJumps) {
-      cerveza.jump(1000);
+      cerveza.jump(1060);
       jumpCount++;
     }
   });
