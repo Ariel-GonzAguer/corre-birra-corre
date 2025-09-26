@@ -23,7 +23,7 @@ const gato = add([
   sprite("gato"),
   pos(rand(0, width()), 695),
   scale(0.3),
-  area({ scale: 0.85 }),
+  area(),
   body(),
   anchor("botright"),
   "gato",
@@ -36,9 +36,10 @@ loadSprite("borracho", "./sprites/borracho.png");
 const borracho = add([
   sprite("borracho"),
   pos(rand(0, width()), 695),
-  area({ scale: 0.9 }),
+  scale(0.8),
+  area(),
   body(),
-  anchor("botright"),
+  anchor("botleft"),
   "borracho",
   "malo",
 ]);
@@ -46,7 +47,16 @@ const borracho = add([
 // bacteria
 loadSprite("bacteria", "./sprites/bacteria.png");
 
-const bacteria = add([sprite("bacteria"), "bacteria", "malo"]);
+const bacteria = add([
+  sprite("bacteria"),
+  pos(rand(0, width()), 695),
+  scale(0.3),
+  area(),
+  body(),
+  anchor("botright"),
+  "bacteria",
+  "malo",
+]);
 
 // escenas
 // menú
@@ -65,7 +75,7 @@ scene("menu", () => {
       const scaleX = width() / menuSprite.width;
       const scaleY = height() / menuSprite.height;
       const menuScale = Math.max(scaleX, scaleY);
-      
+
       add([
         sprite("fondo-menu"),
         pos(width() / 2, height() / 2),
@@ -175,6 +185,17 @@ scene("juego", () => {
   // gravedad → va dentro de la escena
   setGravity(1900);
 
+  // puntuación
+  let score = 0;
+  // fondo para el score
+  add([rect(80, 40), pos(16, 16), color(0, 0, 0), opacity(0.5), z(5)]);
+  const scoreLabel = add([
+    text(score, { size: 32 }),
+    pos(24, 24),
+    color(255, 255, 255),
+    z(6),
+  ]);
+
   // personaje principal y acciones
   const cerveza = add([
     sprite("cerveza"),
@@ -226,25 +247,44 @@ scene("juego", () => {
   function aparecionPersonajes() {
     const rapidez = 350;
     const opciones = [
-      { name: "borracho", tag: "borracho" },
-      { name: "gato", tag: "gato" },
-      { name: "bacteria", tag: "bacteria" },
+      {
+        name: "borracho",
+        tag: "borracho",
+        scale: borracho.scale,
+        area: borracho.area,
+      },
+      {
+        name: "gato",
+        tag: "gato",
+        scale: gato.scale,
+        area: gato.area,
+      },
+      {
+        name: "bacteria",
+        tag: "bacteria",
+        scale: bacteria.scale,
+        area: bacteria.area,
+      },
     ];
 
     const personajeRandom = opciones[Math.floor(rand(0, opciones.length))];
 
-    const personajeAMostrar = add([
+    add([
       sprite(personajeRandom.name),
-      pos(rand(0, width()), 0),
+      pos(width(), height()), // Aparecen desde la derecha, a nivel del suelo
       anchor("botright"),
       move(LEFT, rapidez),
+      area(personajeRandom.area),
+      scale(personajeRandom.scale),
       personajeRandom.tag,
       z(1),
     ]);
-    wait(rand(1, 5), () => {
+
+    wait(rand(1.25, 4), () => {
       aparecionPersonajes();
     });
   }
+
   // activar el spawn
   aparecionPersonajes();
 
@@ -260,6 +300,16 @@ scene("juego", () => {
     }
   });
 
+  cerveza.onCollide("bacteria", () => {
+    cerveza.hp(0);
+    go("lose");
+  });
+
+  cerveza.onCollide("gato", () => {
+    score += 100;
+    scoreLabel.text = score.toString();
+  });
+
   // iniciar animación al cargar la escena
   onLoad(() => {
     cerveza.play("correr");
@@ -271,13 +321,13 @@ scene("juego", () => {
       const scaleX = width() / backgroundSprite.width;
       const scaleY = height() / backgroundSprite.height;
       const backgroundScale = Math.max(scaleX, scaleY);
-      
+
       add([
-        sprite("fondo"), 
-        pos(width() / 2, height() / 2), 
-        anchor("center"), 
-        scale(backgroundScale), 
-        z(-1)
+        sprite("fondo"),
+        pos(width() / 2, height() / 2),
+        anchor("center"),
+        scale(backgroundScale),
+        z(-1),
       ]);
     }
   });
@@ -295,7 +345,7 @@ scene("juego", () => {
   ]);
 });
 
-// go("juego");
+go("juego");
 
 // DESCOMENTAR AL FINAL
-go("menu");
+// go("menu");
