@@ -9,6 +9,12 @@ kaplay({
 // puntuación
 let score = 0;
 
+// Detectar si es un dispositivo móvil
+const isMobile =
+  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+    navigator.userAgent
+  ) || "ontouchstart" in window;
+
 // sprites de personajes y constantes de personajes
 // birra
 loadSprite("cerveza", "./sprites/beer-sprite.png", {
@@ -204,6 +210,109 @@ scene("menu", () => {
   ]);
 
   startBtn.onClick(() => {
+    go("como-jugar");
+  });
+});
+
+// cómo jugar
+// imagen de fondo
+loadSprite("fondo-como-jugar", "./sprites/fondo-como-jugar.png");
+
+scene("como-jugar", () => {
+  // fondo responsive
+  getSprite("fondo-como-jugar").then((comoJugarSprite) => {
+    if (comoJugarSprite) {
+      const scaleX = width() / comoJugarSprite.width;
+      const scaleY = height() / comoJugarSprite.height;
+      const menuScale = Math.max(scaleX, scaleY);
+
+      add([
+        sprite("fondo-como-jugar"),
+        pos(width() / 2, height() / 2),
+        anchor("center"),
+        scale(menuScale),
+        z(-10),
+      ]);
+    }
+  });
+
+  if (isMobile) {
+    add([
+      text(
+        "Instrucciones\n- Use el botón ↑ para saltar. ¡Puede hacer saltos dobles!\n- Use las flechas ← y → para moverse hacia atrás y adelante, respectivamente.\nImportante: Si retrocede mucho, la cerveza desaparece y hay que reiniciar el juego.\n- Si colisiona con un borracho pierde una vida ♥️.\n- Si toca una bacteria pierde el juego.\n- Si toca un lúpulo obtiene protección contra el siguiente borracho que llegue.\n- Si toca la cebada obtiene una vida extra",
+        {
+          size: 24,
+          color: rgb(255, 255, 255),
+          width: 550, // ancho menor al rect del fondo (600) para dejar margen
+          align: "left", // alineación izquierda para mejor legibilidad
+          lineSpacing: 8, // espaciado entre líneas
+        }
+      ),
+      pos(width() / 2, height() / 2 - 50), // posición ajustada para centrarse mejor en el fondo
+      anchor("center"),
+      z(1),
+    ]);
+
+    // fondo para instrucciones
+    add([
+      rect(600, height() - 50),
+      pos(width() / 2, height() / 2),
+      anchor("center"),
+      color(0, 0, 0),
+      opacity(0.8),
+      z(0),
+    ]);
+  } else {
+    // texto de instrucciones (dentro del fondo)
+    add([
+      text(
+        "Instrucciones\n- Use la barra de espacio para saltar. ¡Puede hacer saltos dobles!\n- Use las flechas izquierda y derecha para moverse hacia atrás y adelante, respectivamente.\nImportante: Si retrocede mucho, la cerveza desaparece y hay que reiniciar el juego.\n- Si colisiona con un borracho pierde una vida ♥️.\n- Si toca una bacteria pierde el juego.\n- Si toca un lúpulo obtiene protección contra el siguiente borracho que llegue.\n- Si toca la cebada obtiene una vida extra",
+        {
+          size: 24,
+          color: rgb(255, 255, 255),
+          width: 550, // ancho menor al rect del fondo (600) para dejar margen
+          align: "left", // alineación izquierda para mejor legibilidad
+          lineSpacing: 8, // espaciado entre líneas
+        }
+      ),
+      pos(width() / 2, height() / 2 - 50), // posición ajustada para centrarse mejor en el fondo
+      anchor("center"),
+      z(1),
+    ]);
+
+    // fondo para instrucciones
+    add([
+      rect(600, height() - 50),
+      pos(width() / 2, height() / 2),
+      anchor("center"),
+      color(0, 0, 0),
+      opacity(0.8),
+      z(0),
+    ]);
+  }
+
+  // botón iniciar
+  const btnPos = vec2(width() / 2, height() / 2 + 250);
+  const startBtn = add([
+    rect(250, 60),
+    pos(btnPos),
+    anchor("center"),
+    color(40, 180, 40),
+    outline(6),
+    area(),
+    z(1),
+  ]);
+
+  // texto del botón para iniciar
+  add([
+    text("¡Todo listo!", { size: 36 }),
+    pos(btnPos),
+    anchor("center"),
+    color(255, 255, 255),
+    z(2),
+  ]);
+
+  startBtn.onClick(() => {
     go("juego");
   });
 });
@@ -266,11 +375,6 @@ scene("juego", () => {
   let tieneEscudo = false;
 
   // Controles táctiles para móviles
-  // Detectar si es un dispositivo móvil
-  const isMobile =
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
-    ) || "ontouchstart" in window;
 
   if (isMobile) {
     // Botón de salto (centro-derecha de la mitad de pantalla)
