@@ -210,13 +210,13 @@ scene("juego", () => {
   ]);
 
   // vidas de la cerveza
-  let vidas = cerveza.hp();
+  let vidas = "❤❤❤";
   // fondo para el score
-  add([rect(80, 40), pos(150, 16), color(0, 0, 0), opacity(0.5), z(5)]);
+  add([rect(110, 40), pos(150, 16), color(0, 0, 0), opacity(0.5), z(5)]);
   const vidasLabel = add([
     text(vidas, { size: 32 }),
+    color(255, 0, 0),
     pos(160, 24),
-    color(255, 255, 255),
     z(6),
   ]);
 
@@ -303,7 +303,7 @@ scene("juego", () => {
     shake();
     addKaboom(cerveza.pos);
     cerveza.hurt(1);
-    vidas = cerveza.hp();
+    vidas = vidas.slice(0, -1);
     vidasLabel.text = vidas.toString();
     // si la vida = 0, se pierde
     if (cerveza.hp() <= 0) {
