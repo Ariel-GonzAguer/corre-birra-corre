@@ -2,6 +2,9 @@
 import kaplay from "kaplay";
 import "kaplay/global";
 
+// Importar funciones de Firebase
+import { saveScore, getTopScores } from "./firebase/firebaseConfig";
+
 kaplay({
   debugKey: "p",
 });
@@ -989,12 +992,124 @@ scene("teclado", () => {
   ]);
 
   // guardar puntuación
-  siguienteBtn.onClick(() => {
-    go("highScores");
+  siguienteBtn.onClick(async () => {
+    try {
+      if (nombre.trim() === "") {
+        alert("Por favor, ingrese un nombre válido.");
+        return;
+      }
+      await saveScore(nombre, score.toString());
+      go("highScores");
+    } catch (error) {
+      console.error("Error al guardar la puntuación:", error);
+    }
   });
 });
 
-// go("perdido");
+// escena de puntuaciones altas
+loadSprite("fondo-puntajesAltos", "./sprites/fondo-puntajesAltos.png");
+scene("highScores", async () => {
+  // fondo responsive
+  getSprite("fondo-puntajesAltos").then((backgroundSprite) => {
+    if (backgroundSprite) {
+      const scaleX = width() / backgroundSprite.width;
+      const scaleY = height() / backgroundSprite.height;
+      const backgroundScale = Math.max(scaleX, scaleY);
+      add([
+        sprite("fondo-puntajesAltos"),
+        pos(width() / 2, height() / 2),
+        anchor("center"),
+        scale(backgroundScale),
+        z(-10),
+      ]);
+    }
+  });
 
+  // texto de título
+  add([
+    text("Puntuaciones Altas", { size: 64 }),
+    pos(width() / 2, 100),
+    anchor("center"),
+    color(255, 255, 255),
+    z(3),
+  ]);
+
+  // fondo para el texto de título
+  add([
+    rect(700, 100),
+    pos(width() / 2, 100),
+    anchor("center"),
+    color(0, 0, 0),
+    opacity(0.7),
+    z(1),
+  ]);
+
+  // obtener y mostrar las puntuaciones
+  try {
+    const topScores = await getTopScores();
+    if (topScores.length === 0) {
+      add([
+        text("No hay puntuaciones registradas.", { size: 32 }),
+        pos(width() / 2, height() / 2),
+        anchor("center"),
+        color(255, 255, 255),
+        z(3),
+      ]);
+    } else {
+      topScores.forEach((score, index) => {
+        add([
+          text(`${index + 1}. ${score.nombre}: ${score.puntuacion}`, { size: 32 }),
+          pos(width() / 2, 180 + index * 40),
+          anchor("center"),
+          color(255, 255, 255),
+          z(3),
+        ]);
+        // fondo para cada puntuación
+        add([
+          rect(600, 40),
+          pos(width() / 2, 180 + index * 40),
+          anchor("center"),
+          color(0, 0, 0),
+          opacity(0.7),
+          z(2),
+        ]);
+      });
+    }
+
+    // botón reiniciar
+    const btnPos = vec2(width() / 2, height() - 100);
+    const startBtn = add([
+      rect(350, 60),
+      pos(btnPos),
+      anchor("center"),
+      color(40, 180, 40),
+      outline(6),
+      area(),
+      z(1),
+    ]);
+
+    // texto del botón para reiniciar
+    add([
+      text("Volver al Inicio", { size: 36 }),
+      pos(btnPos),
+      anchor("center"),
+      color(255, 255, 255),
+      z(2),
+    ]);
+
+    // usar teclado para reiniciar
+    onKeyPress("enter", () => {
+      window.location.reload();
+    });
+
+    // reiniciar juegos
+    startBtn.onClick(() => {
+      window.location.reload();
+    });
+  } catch (error) {
+    console.error("Error al obtener las puntuaciones:", error);
+  }
+});
+// go("highScores");
 // DESCOMENTAR AL FINAL
 go("menu");
