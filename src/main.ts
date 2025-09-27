@@ -6,6 +6,9 @@ kaplay({
   debugKey: "p",
 });
 
+// entre mayor sea el eje Y, más lejos de la parte superior (más abajo en la pantalla)
+// height() - 100 → 100px sobre el borde inferior. height() retorna la altura total de la pantalla
+
 // puntuación
 let score = 0;
 
@@ -163,15 +166,15 @@ scene("menu", () => {
       width: width(),
       align: "center",
     }),
-    pos(width() / 2, isMobile ? 200 : 100),
+    pos(width() / 2, isMobile ? 600 : 200),
     anchor("center"),
     z(1),
   ]);
 
   // fondo para subtítulo
   add([
-    rect(isMobile ? 700 : 600, isMobile ? 100 : 50),
-    pos(width() / 2, isMobile ? 200 : 100),
+    rect(isMobile ? 800 : 600, isMobile ? 100 : 50),
+    pos(width() / 2, isMobile ? 600 : 200),
     anchor("center"),
     color(0, 0, 0),
     opacity(0.7),
@@ -181,7 +184,7 @@ scene("menu", () => {
   // logo Gato Rojo Lab
   add([
     sprite("gatoRojoLab"),
-    pos(width() / 2, height() - 100),
+    pos(width() / 2, isMobile ? height() - 200 : height() - 100),
     anchor("center"),
     scale(isMobile ? 1 : 0.7),
     z(3),
@@ -200,7 +203,7 @@ scene("menu", () => {
   // botón iniciar
   const btnPos = vec2(width() / 2, height() / 2 + 50);
   const startBtn = add([
-    rect(250, 60),
+    rect(isMobile ? 350 : 250, isMobile ? 100 : 60),
     pos(btnPos),
     anchor("center"),
     color(40, 180, 40),
@@ -211,7 +214,7 @@ scene("menu", () => {
 
   // texto del botón para iniciar
   add([
-    text("Iniciar", { size: 36 }),
+    text("Iniciar", { size: isMobile ? 50 : 36 }),
     pos(btnPos),
     anchor("center"),
     color(255, 255, 255),
@@ -301,7 +304,9 @@ scene("como-jugar", () => {
   }
 
   // botón iniciar
-  const btnPos = isMobile ? vec2(width() / 2, height() / 2 + 350) : vec2(width() / 2, height() / 2 + 250);
+  const btnPos = isMobile
+    ? vec2(width() / 2, height() / 2 + 350)
+    : vec2(width() / 2, height() / 2 + 250);
   const startBtn = add([
     rect(isMobile ? 300 : 250, 60),
     pos(btnPos),
