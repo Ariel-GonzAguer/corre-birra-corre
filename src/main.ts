@@ -147,8 +147,7 @@ scene("menu", () => {
 
   // fondo para título
   add([
-    rect(600, 80),
-    rect(isMobile ? 700 : 600, isMobile ? 100 : 80),
+    rect(isMobile ? 800 : 600, isMobile ? 100 : 80),
     pos(width() / 2, 100),
     anchor("center"),
     color(0, 0, 0),
@@ -159,12 +158,12 @@ scene("menu", () => {
   // subtítulo
   add([
     text("¡Huye de los borrachos y bacterias!", {
-      size: isMobile ? 36 : 28,
+      size: isMobile ? 38 : 28,
       color: rgb(255, 255, 255),
       width: width(),
       align: "center",
     }),
-    pos(width() / 2, 200),
+    pos(width() / 2, isMobile ? 200 : 100),
     anchor("center"),
     z(1),
   ]);
@@ -172,7 +171,7 @@ scene("menu", () => {
   // fondo para subtítulo
   add([
     rect(isMobile ? 700 : 600, isMobile ? 100 : 50),
-    pos(width() / 2, 200),
+    pos(width() / 2, isMobile ? 200 : 100),
     anchor("center"),
     color(0, 0, 0),
     opacity(0.7),
@@ -441,7 +440,7 @@ scene("juego", () => {
     // Texto del botón izquierda
     add([
       text("←", { size: 56 }),
-      pos(width() * 0.15, height() * 0.6),
+      pos(width() * 0.15, height() * 0.5),
       color(0, 0, 0),
       anchor("center"),
       z(11),
@@ -462,7 +461,7 @@ scene("juego", () => {
     // Texto del botón derecha
     add([
       text("→", { size: 56 }),
-      pos(width() * 0.35, height() * 0.5),
+      pos(width() * 0.35, height() * 0.6),
       color(0, 0, 0),
       anchor("center"),
       z(11),
@@ -799,7 +798,7 @@ scene("perdido", () => {
 
   // fondo para el texto de puntuación
   add([
-    rect(300, 50),
+    rect(isMobile ? 400 : 300, 50),
     pos(width() / 2, height() / 2 - 240),
     anchor("center"),
     color(0, 0, 0),
