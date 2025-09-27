@@ -306,7 +306,7 @@ scene("como-jugar", () => {
 
   // botón iniciar
   const btnPos = isMobile
-    ? vec2(width() / 2, height() / 2 - 500)
+    ? vec2(width() / 2, height() / 2 + 500)
     : vec2(width() / 2, height() / 2 + 250);
   const startBtn = add([
     rect(isMobile ? 300 : 250, 60),
@@ -363,7 +363,7 @@ scene("juego", () => {
   ]);
   // texto del score
   const scoreLabel = add([
-    text(score, { size: isMobile ? 50 : 32 }),
+    text(score, { size: isMobile ? 65 : 32 }),
     color(255, 255, 255),
     pos(24, 24),
     z(6),
@@ -371,7 +371,7 @@ scene("juego", () => {
 
   // fondo para las vidas
   const fondoVidas = add([
-    rect(isMobile ? 300 : 110, isMobile ? 120 : 40),
+    rect(isMobile ? 170 : 110, isMobile ? 100 : 40), 
     pos(isMobile ? 16 : width() / 2 - 5, isMobile ? 100 : 16),
     color(0, 0, 0),
     opacity(0.5),
@@ -379,8 +379,8 @@ scene("juego", () => {
   ]);
   // texto de las vidas
   const vidasLabel = add([
-    text(vidas, { size: isMobile ? 50 : 32 }),
-    pos(isMobile ? 16 : width() / 2, isMobile ? 100 : 24),
+    text(vidas, { size: isMobile ? 65 : 32 }),
+    pos(isMobile ? 16 : width() / 2, isMobile ? 180 : 24),
     color(255, 0, 0),
     z(6),
   ]);
@@ -419,7 +419,7 @@ scene("juego", () => {
     // Botón de salto (centro-derecha de la mitad de pantalla)
     const jumpButton = add([
       rect(200, 200),
-      pos(width() * 0.75, height() * 0.5),
+      pos(width() * - 100, height() * 0.5),
       area(),
       color(255, 255, 255),
       opacity(0.8),
@@ -431,7 +431,7 @@ scene("juego", () => {
     // Texto del botón de salto
     add([
       text("↑", { size: 64 }),
-      pos(width() * 0.75, height() * 0.5),
+      pos(width() * - 100, height() * 0.5),
       color(0, 0, 0),
       anchor("center"),
       z(11),
