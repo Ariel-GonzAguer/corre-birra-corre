@@ -7,8 +7,9 @@ import { saveScore, getTopScores } from "./servicios/apiClient";
 
 // importar funciones firebase para límite diario
 import { getRateLimitStatus } from "./servicios/apiClient";
-const { canSave, remainingAttempts, totalAttempts } =
-  await getRateLimitStatus();
+
+// importar utils
+import { createResponsiveBackground } from "./utils/utils";
 
 // Importar Vercel Analytics
 import { inject, track } from "@vercel/analytics";
@@ -138,23 +139,26 @@ scene("menu", () => {
   setBackground(0, 0, 0);
 
   // imagen de fondo responsive
-  getSprite("fondo-menu").then((menuSprite) => {
-    if (menuSprite) {
-      const scaleX = width() / menuSprite.width;
-      const scaleY = height() / menuSprite.height;
-      const menuScale = Math.max(scaleX, scaleY);
+  // getSprite("fondo-menu").then((menuSprite) => {
+  //   if (menuSprite) {
+  //     const scaleX = width() / menuSprite.width;
+  //     const scaleY = height() / menuSprite.height;
+  //     const menuScale = Math.max(scaleX, scaleY);
 
-      add([
-        sprite("fondo-menu"),
-        pos(width() / 2, height() / 2),
-        anchor("center"),
-        scale(menuScale),
-        z(-10),
-      ]);
-    }
-  });
+  //     add([
+  //       sprite("fondo-menu"),
+  //       pos(width() / 2, height() / 2),
+  //       anchor("center"),
+  //       scale(menuScale),
+  //       z(-10),
+  //     ]);
+  //   }
+  // });
 
   // texto de título
+
+  createResponsiveBackground("fondo-menu");
+
   add([
     text("¡Corre Birra Corre!", {
       size: isMobile ? 74 : 48,
@@ -256,21 +260,7 @@ loadSprite("fondo-como-jugar", "./sprites/fondo-como-jugar.png");
 
 scene("como-jugar", () => {
   // fondo responsive
-  getSprite("fondo-como-jugar").then((comoJugarSprite) => {
-    if (comoJugarSprite) {
-      const scaleX = width() / comoJugarSprite.width;
-      const scaleY = height() / comoJugarSprite.height;
-      const menuScale = Math.max(scaleX, scaleY);
-
-      add([
-        sprite("fondo-como-jugar"),
-        pos(width() / 2, height() / 2),
-        anchor("center"),
-        scale(menuScale),
-        z(-10),
-      ]);
-    }
-  });
+  createResponsiveBackground("fondo-como-jugar");
 
   // inicialización de variable para darle valor dentro de un if, y usar sus propiedades después
   if (isMobile) {
@@ -741,21 +731,7 @@ scene("juego", () => {
   });
 
   // fondo responsive
-  getSprite("fondo").then((backgroundSprite) => {
-    if (backgroundSprite) {
-      const scaleX = width() / backgroundSprite.width;
-      const scaleY = height() / backgroundSprite.height;
-      const backgroundScale = Math.max(scaleX, scaleY);
-
-      add([
-        sprite("fondo"),
-        pos(width() / 2, height() / 2),
-        anchor("center"),
-        scale(backgroundScale),
-        z(-1),
-      ]);
-    }
-  });
+  createResponsiveBackground("fondo");
 
   // piso
   add([
@@ -773,22 +749,13 @@ scene("juego", () => {
 // escena de perder
 // fondo del juego
 loadSprite("fondo-perdido", "./sprites/fondo-perdido.png");
-scene("perdido", () => {
+scene("perdido", async () => {
+  // Verificar estado del límite diario
+  const rateLimitStatus = await getRateLimitStatus();
+  const canSave = rateLimitStatus.canSave;
+
   // fondo responsive
-  getSprite("fondo-perdido").then((backgroundSprite) => {
-    if (backgroundSprite) {
-      const scaleX = width() / backgroundSprite.width;
-      const scaleY = height() / backgroundSprite.height;
-      const backgroundScale = Math.max(scaleX, scaleY);
-      add([
-        sprite("fondo-perdido"),
-        pos(width() / 2, height() / 2),
-        anchor("center"),
-        scale(backgroundScale),
-        z(-10),
-      ]);
-    }
-  });
+  createResponsiveBackground("fondo-perdido");
 
   // texto de perder
   add([
@@ -853,10 +820,10 @@ scene("perdido", () => {
   ]);
 
   // Si no es móvil, la puntuación es mayor a 0 y puede guardar, mostrar opción de guardar
+  // botón guardar / alcanzar el límite diario
+  const btnGuardar = vec2(width() / 2, height() / 2 + 300);
   if (!isMobile && score > 0 && canSave) {
     // guardar puntuación
-    // botón guardar
-    const btnGuardar = vec2(width() / 2, height() / 2 + 275);
     const guardarBtn = add([
       rect(400, 60),
       pos(btnGuardar),
@@ -883,12 +850,22 @@ scene("perdido", () => {
     //
   } else if (!isMobile && score > 0 && !canSave) {
     add([
-      text(`Puntuaciones alcanzado\nMáximo de 10 por día.\nIntenta mañana 🍻`, {
-        size: 36,
-      }),
-      pos(width() / 2, height() / 2 + 200),
+      rect(370, 80),
+      pos(btnGuardar),
       anchor("center"),
-      color(255, 0, 0),
+      color(255, 255, 0),
+      outline(6),
+      area(),
+      z(1),
+    ]);
+    add([
+      text(`Puntuaciones alcanzado\nMáximo de 10 por día.\nIntenta mañana 🍻`, {
+        size: 22,
+        align: "center",
+      }),
+      pos(btnGuardar),
+      anchor("center"),
+      color(0, 0, 0),
       z(2),
     ]);
   }
@@ -903,20 +880,7 @@ scene("perdido", () => {
 loadSprite("fondo-nombre", "./sprites/fondo-nombre.png");
 scene("teclado", () => {
   // fondo responsive
-  getSprite("fondo-nombre").then((backgroundSprite) => {
-    if (backgroundSprite) {
-      const scaleX = width() / backgroundSprite.width;
-      const scaleY = height() / backgroundSprite.height;
-      const backgroundScale = Math.max(scaleX, scaleY);
-      add([
-        sprite("fondo-nombre"),
-        pos(width() / 2, height() / 2),
-        anchor("center"),
-        scale(backgroundScale),
-        z(-10),
-      ]);
-    }
-  });
+  createResponsiveBackground("fondo-nombre");
 
   // texto de instrucciones
   add([
@@ -1063,20 +1027,7 @@ scene("highScores", async () => {
   track("page_view", { page: "high_scores" });
 
   // fondo responsive
-  getSprite("fondo-puntajesAltos").then((backgroundSprite) => {
-    if (backgroundSprite) {
-      const scaleX = width() / backgroundSprite.width;
-      const scaleY = height() / backgroundSprite.height;
-      const backgroundScale = Math.max(scaleX, scaleY);
-      add([
-        sprite("fondo-puntajesAltos"),
-        pos(width() / 2, height() / 2),
-        anchor("center"),
-        scale(backgroundScale),
-        z(-10),
-      ]);
-    }
-  });
+  createResponsiveBackground("fondo-puntajesAltos");
 
   // texto de título
   add([
