@@ -7,7 +7,7 @@ kaplay({
 });
 
 // entre mayor sea el eje Y, más lejos de la parte superior (más abajo en la pantalla)
-// height() - 100 → 100px sobre el borde inferior. height() retorna la altura total de la pantalla
+// height() - 100 → posiciona a 100px de distancia del borde inferior. height() retorna la altura total de la pantalla
 
 // puntuación
 let score = 0;
@@ -192,7 +192,7 @@ scene("menu", () => {
 
   // fondo para logo
   add([
-    rect(isMobile ? 500 : 300, isMobile ? 200 : 175),
+    rect(isMobile ? 500 : 300, isMobile ? 350 : 175),
     pos(width() / 2, isMobile ? height() - 200 : height() - 100),
     anchor("center"),
     color(0, 0, 0),
@@ -249,9 +249,8 @@ scene("como-jugar", () => {
   });
 
   // inicialización de variable para darle valor dentro de un if, y usar sus propiedades después
-  let textoInstrucciones;
   if (isMobile) {
-    textoInstrucciones = add([
+    add([
       text(
         "Instrucciones\n- Use el botón ↑ para saltar. ¡Puede hacer saltos dobles!\n- Use las flechas ← y → para moverse hacia atrás y adelante, respectivamente.\nImportante: Si retrocede mucho, la cerveza desaparece y hay que reiniciar el juego.\n- Si colisiona con un borracho pierde una vida ♥️.\n- Si toca una bacteria pierde el juego.\n- Si toca un lúpulo obtiene protección contra el siguiente borracho que llegue.\n- Si toca la cebada obtiene una vida extra",
         {
@@ -307,7 +306,7 @@ scene("como-jugar", () => {
 
   // botón iniciar
   const btnPos = isMobile
-    ? vec2(width() / 2, textoInstrucciones.pos.y + 300)
+    ? vec2(width() / 2, height() / 2 - 500)
     : vec2(width() / 2, height() / 2 + 250);
   const startBtn = add([
     rect(isMobile ? 300 : 250, 60),
@@ -354,22 +353,6 @@ scene("juego", () => {
     "player",
   ]);
 
-  // fondo para las vidas
-  const fondoVidas = add([
-    rect(isMobile ? 300 : 110, isMobile ? 120 : 40),
-    pos(width() / 2 - 5, 16),
-    color(0, 0, 0),
-    opacity(0.5),
-    z(5),
-  ]);
-  // texto de las vidas
-  const vidasLabel = add([
-    text(vidas, { size: isMobile ? 50 : 32 }),
-    color(255, 0, 0),
-    pos(width() / 2, 24),
-    z(6),
-  ]);
-
   // fondo para el score
   add([
     rect(isMobile ? 200 : 80, isMobile ? 100 : 40),
@@ -380,16 +363,32 @@ scene("juego", () => {
   ]);
   // texto del score
   const scoreLabel = add([
-    text(score, { size: 32 }),
+    text(score, { size: isMobile ? 50 : 32 }),
     color(255, 255, 255),
     pos(24, 24),
+    z(6),
+  ]);
+
+  // fondo para las vidas
+  const fondoVidas = add([
+    rect(isMobile ? 300 : 110, isMobile ? 120 : 40),
+    pos(isMobile ? 16 : width() / 2 - 5, isMobile ? 100 : 16),
+    color(0, 0, 0),
+    opacity(0.5),
+    z(5),
+  ]);
+  // texto de las vidas
+  const vidasLabel = add([
+    text(vidas, { size: isMobile ? 50 : 32 }),
+    pos(isMobile ? 16 : width() / 2, isMobile ? 100 : 24),
+    color(255, 0, 0),
     z(6),
   ]);
 
   // fondo para el escudo
   add([
     rect(185, 33),
-    pos(width() - 250, 16),
+    pos(isMobile ? 16 : width() - 250, isMobile ? 200 : 16),
     color(0, 0, 0),
     opacity(0.5),
     z(5),
@@ -397,8 +396,8 @@ scene("juego", () => {
   // texto del escudo
   const escudoLabel = add([
     text("Escudo: No", { size: 32 }),
+    pos(isMobile ? 16 : width() - 250, isMobile ? 200 : 16),
     color(255, 255, 255),
-    pos(width() - 250, 16),
     z(6),
   ]);
 
