@@ -9,6 +9,15 @@ kaplay({
 // puntuación
 let score = 0;
 
+// vidas de la cerveza
+let vidas = "❤❤❤";
+
+// sistema de inmunidad (escudo contra borrachos)
+let tieneEscudo = false;
+
+// // escudo
+// let escudo = "Escudo:";
+
 // Detectar si es un dispositivo móvil
 const isMobile =
   /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
@@ -325,15 +334,6 @@ scene("juego", () => {
   // gravedad → va dentro de la escena
   setGravity(1900);
 
-  // fondo para el score
-  add([rect(80, 40), pos(16, 16), color(0, 0, 0), opacity(0.5), z(5)]);
-  const scoreLabel = add([
-    text(score, { size: 32 }),
-    pos(24, 24),
-    color(255, 255, 255),
-    z(6),
-  ]);
-
   // personaje principal y acciones
   const cerveza = add([
     sprite("cerveza"),
@@ -347,14 +347,45 @@ scene("juego", () => {
     "player",
   ]);
 
-  // vidas de la cerveza
-  let vidas = "❤❤❤";
-  // fondo para el score
-  add([rect(110, 40), pos(150, 16), color(0, 0, 0), opacity(0.5), z(5)]);
+  // fondo para las vidas
+  const fondoVidas = add([
+    rect(110, 40),
+    pos(150, 16),
+    color(0, 0, 0),
+    opacity(0.5),
+    z(5),
+  ]);
+  // texto de las vidas
   const vidasLabel = add([
     text(vidas, { size: 32 }),
     color(255, 0, 0),
     pos(160, 24),
+    z(6),
+  ]);
+
+  // fondo para el score
+  add([rect(80, 40), pos(16, 16), color(0, 0, 0), opacity(0.5), z(5)]);
+  // texto del score
+  const scoreLabel = add([
+    text(score, { size: 32 }),
+    color(255, 255, 255),
+    pos(24, 24),
+    z(6),
+  ]);
+
+  // fondo para el escudo
+  add([
+    rect(185, 33),
+    pos(width() / 2, 16),
+    color(0, 0, 0),
+    opacity(0.5),
+    z(5),
+  ]);
+  // texto del escudo
+  const escudoLabel = add([
+    text("Escudo: No", { size: 32 }),
+    color(255, 255, 255),
+    pos(width() / 2, 16),
     z(6),
   ]);
 
@@ -371,11 +402,7 @@ scene("juego", () => {
   let jumpCount = 0;
   const maxJumps = 1;
 
-  // sistema de inmunidad (escudo contra borrachos)
-  let tieneEscudo = false;
-
   // Controles táctiles para móviles
-
   if (isMobile) {
     // Botón de salto (centro-derecha de la mitad de pantalla)
     const jumpButton = add([
@@ -566,7 +593,7 @@ scene("juego", () => {
   }
 
   // activar el spawn
-  aparecionPersonajes();
+  aparecionPersonajes(); // ******************
 
   // aparición power-ups
   function aparecionPowerUps() {
@@ -619,6 +646,7 @@ scene("juego", () => {
     if (tieneEscudo) {
       // consumir el escudo y no recibir daño
       tieneEscudo = false;
+      escudoLabel.text = "Escudo: No";
       shake(); // shake para indicar que se bloqueó el ataque
       return; // salir sin hacer daño
     }
@@ -651,11 +679,13 @@ scene("juego", () => {
   cerveza.onCollide("lupulo", () => {
     // otorgar escudo de inmunidad contra borrachos
     tieneEscudo = true;
+    escudoLabel.text = "Escudo: Sí";
   });
 
   cerveza.onCollide("cebada", () => {
     cerveza.setHP(cerveza.hp() + 1);
     vidas = "❤".repeat(cerveza.hp());
+    fondoVidas.width = 55 + 25 * cerveza.hp(); // ajustar el fondo según las vidas
     vidasLabel.text = vidas.toString();
   });
 
