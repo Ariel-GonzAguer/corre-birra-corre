@@ -173,7 +173,7 @@ scene("menu", () => {
 
   // fondo para subtítulo
   add([
-    rect(isMobile ? 800 : 600, isMobile ? 100 : 50),
+    rect(isMobile ? 850 : 600, isMobile ? 100 : 50),
     pos(width() / 2, isMobile ? 600 : 200),
     anchor("center"),
     color(0, 0, 0),
@@ -192,7 +192,7 @@ scene("menu", () => {
 
   // fondo para logo
   add([
-    rect(isMobile ? 400 : 300, isMobile ? 200 : 175),
+    rect(isMobile ? 500 : 300, isMobile ? 200 : 175),
     pos(width() / 2, isMobile ? height() - 200 : height() - 100),
     anchor("center"),
     color(0, 0, 0),
@@ -251,8 +251,8 @@ scene("como-jugar", () => {
   // inicialización de variable para darle valor dentro de un if, y usar sus propiedades después
   let textoInstrucciones;
   if (isMobile) {
-    add([
-      (textoInstrucciones = text(
+    textoInstrucciones = add([
+      text(
         "Instrucciones\n- Use el botón ↑ para saltar. ¡Puede hacer saltos dobles!\n- Use las flechas ← y → para moverse hacia atrás y adelante, respectivamente.\nImportante: Si retrocede mucho, la cerveza desaparece y hay que reiniciar el juego.\n- Si colisiona con un borracho pierde una vida ♥️.\n- Si toca una bacteria pierde el juego.\n- Si toca un lúpulo obtiene protección contra el siguiente borracho que llegue.\n- Si toca la cebada obtiene una vida extra",
         {
           size: 36,
@@ -261,7 +261,7 @@ scene("como-jugar", () => {
           align: "left", // alineación izquierda para mejor legibilidad
           lineSpacing: 12, // espaciado entre líneas
         }
-      )),
+      ),
       pos(width() / 2, height() / 2 - 50), // posición ajustada para centrarse mejor en el fondo
       anchor("center"),
       z(1),
@@ -357,7 +357,7 @@ scene("juego", () => {
   // fondo para las vidas
   const fondoVidas = add([
     rect(isMobile ? 300 : 110, isMobile ? 120 : 40),
-    pos(width() / 2 - 5 , 16),
+    pos(width() / 2 - 5, 16),
     color(0, 0, 0),
     opacity(0.5),
     z(5),
