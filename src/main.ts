@@ -5,6 +5,12 @@ import "kaplay/global";
 // Importar funciones de Firebase
 import { saveScore, getTopScores } from "./servicios/apiClient";
 
+// Importar Vercel Analytics
+import { track } from "@vercel/analytics";
+
+// Track pageview
+track("pageview");
+
 kaplay({
   debugKey: "p",
 });

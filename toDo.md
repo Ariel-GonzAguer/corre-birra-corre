@@ -1,6 +1,6 @@
 - [x] Agregar power-ups (lupulo => escudo | malta => vida extra)
 - [x] Optimizar rendimiento (eliminar objetos fuera de pantalla)
-- [] Agregar Firebase para puntaje global
+- [x] Agregar Firebase para puntaje global
 - [x] Agregar escena de Cómo jugar
-- [] Agregar escena de 20 puntajes más altos
-- [] Agregar escena para introducir nombre.
+- [x] Agregar escena de 20 puntajes más altos
+- [x] Agregar escena para introducir nombre.
