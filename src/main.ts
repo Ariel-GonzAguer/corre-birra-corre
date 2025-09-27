@@ -250,11 +250,11 @@ scene("como-jugar", () => {
       text(
         "Instrucciones\n- Use el botón ↑ para saltar. ¡Puede hacer saltos dobles!\n- Use las flechas ← y → para moverse hacia atrás y adelante, respectivamente.\nImportante: Si retrocede mucho, la cerveza desaparece y hay que reiniciar el juego.\n- Si colisiona con un borracho pierde una vida ♥️.\n- Si toca una bacteria pierde el juego.\n- Si toca un lúpulo obtiene protección contra el siguiente borracho que llegue.\n- Si toca la cebada obtiene una vida extra",
         {
-          size: 32,
+          size: 36,
           color: rgb(255, 255, 255),
           width: 550, // ancho menor al rect del fondo (600) para dejar margen
           align: "left", // alineación izquierda para mejor legibilidad
-          lineSpacing: 8, // espaciado entre líneas
+          lineSpacing: 12, // espaciado entre líneas
         }
       ),
       pos(width() / 2, height() / 2 - 50), // posición ajustada para centrarse mejor en el fondo
@@ -264,7 +264,7 @@ scene("como-jugar", () => {
 
     // fondo para instrucciones
     add([
-      rect(700, height() - 150),
+      rect(700, height() - 250),
       pos(width() / 2, height() / 2),
       anchor("center"),
       color(0, 0, 0),
@@ -301,7 +301,7 @@ scene("como-jugar", () => {
   }
 
   // botón iniciar
-  const btnPos = vec2(width() / 2, height() / 2 + 250);
+  const btnPos = isMobile ? vec2(width() / 2, height() / 2 + 350) : vec2(width() / 2, height() / 2 + 250);
   const startBtn = add([
     rect(isMobile ? 300 : 250, 60),
     pos(btnPos),
@@ -449,7 +449,7 @@ scene("juego", () => {
     // Botón derecha (al lado del botón izquierda)
     const rightButton = add([
       rect(200, 200),
-      pos(width() * 0.35, height() * 0.5),
+      pos(width() * 0.35, height() * 0.6),
       area(),
       color(255, 255, 255),
       opacity(0.8),
