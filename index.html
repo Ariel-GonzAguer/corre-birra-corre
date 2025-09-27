@@ -1,9 +1,15 @@
 <!DOCTYPE html>
 <html>
-<head>
-<title>Corre Birra Corre</title>
-</head>
-<body style="overflow:hidden">
-<script src="src/main.js" type="module"></script>
-</body>
+  <head>
+    <title>Corre Birra Corre</title>
+  </head>
+  <body style="overflow: hidden">
+    <script src="src/main.js" type="module"></script>
+    <script>
+      import { Analytics } from "@vercel/analytics";
+
+      const analytics = new Analytics();
+      analytics.track("pageview");
+    </script>
+  </body>
 </html>

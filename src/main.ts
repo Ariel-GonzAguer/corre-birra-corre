@@ -3,7 +3,7 @@ import kaplay from "kaplay";
 import "kaplay/global";
 
 // Importar funciones de Firebase
-import { saveScore, getTopScores } from "./firebase/firebaseConfig";
+import { saveScore, getTopScores } from "./servicios/apiClient";
 
 kaplay({
   debugKey: "p",
@@ -998,7 +998,7 @@ scene("teclado", () => {
         alert("Por favor, ingrese un nombre válido.");
         return;
       }
-      await saveScore(nombre, score.toString());
+      await saveScore(nombre, score);
       go("highScores");
     } catch (error) {
       console.error("Error al guardar la puntuación:", error);

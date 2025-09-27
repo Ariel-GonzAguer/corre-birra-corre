@@ -12,7 +12,7 @@
     "noEmit": true,
     "baseUrl": ".",
     "paths": {},
-    "types": ["kaplay/global"]
+    "types": ["kaplay/global", "node"]
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules", "dist"]
