@@ -135,7 +135,7 @@ scene("menu", () => {
   // texto de título
   add([
     text("¡Corre Birra Corre!", {
-      size: 48,
+      size: isMobile ? 64 : 48,
       color: rgb(255, 255, 255),
       width: width(),
       align: "center",
@@ -148,6 +148,7 @@ scene("menu", () => {
   // fondo para título
   add([
     rect(600, 80),
+    rect(isMobile ? 700 : 600, isMobile ? 100 : 80),
     pos(width() / 2, 100),
     anchor("center"),
     color(0, 0, 0),
@@ -158,7 +159,7 @@ scene("menu", () => {
   // subtítulo
   add([
     text("¡Huye de los borrachos y bacterias!", {
-      size: 28,
+      size: isMobile ? 36 : 28,
       color: rgb(255, 255, 255),
       width: width(),
       align: "center",
@@ -170,7 +171,7 @@ scene("menu", () => {
 
   // fondo para subtítulo
   add([
-    rect(600, 50),
+    rect(isMobile ? 700 : 600, isMobile ? 100 : 50),
     pos(width() / 2, 200),
     anchor("center"),
     color(0, 0, 0),
@@ -183,13 +184,13 @@ scene("menu", () => {
     sprite("gatoRojoLab"),
     pos(width() / 2, height() - 100),
     anchor("center"),
-    scale(0.7),
+    scale(isMobile ? 1 : 0.7),
     z(3),
   ]);
 
   // fondo para logo
   add([
-    rect(300, 175),
+    rect(isMobile ? 400 : 300, isMobile ? 200 : 175),
     pos(width() / 2, height() - 100),
     anchor("center"),
     color(0, 0, 0),
@@ -759,7 +760,7 @@ scene("perdido", () => {
 
   // fondo para el texto de perder
   add([
-    rect(1200, 200),
+    rect(1200, isMobile ? 250 : 200),
     pos(center()),
     anchor("center"),
     color(0, 0, 0),
@@ -769,7 +770,7 @@ scene("perdido", () => {
 
   const btnPos = vec2(width() / 2, height() / 2 + 200);
   const startBtn = add([
-    rect(350, 60),
+    rect(370, 60),
     pos(btnPos),
     anchor("center"),
     color(40, 180, 40),
@@ -787,8 +788,9 @@ scene("perdido", () => {
     z(2),
   ]);
 
+  // texto de puntuación final
   add([
-    text(`Puntuación: ${score}`, { size: 32 }),
+    text(`Puntuación: ${score}`, { size: isMobile ? 40 : 32 }),
     pos(width() / 2, height() / 2 - 240),
     anchor("center"),
     color(255, 0, 0),
