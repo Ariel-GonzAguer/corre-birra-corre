@@ -9,6 +9,7 @@ kaplay({
 // entre mayor sea el eje Y, más lejos de la parte superior (más abajo en la pantalla)
 // height() - 100 → posiciona a 100px de distancia del borde inferior. height() retorna la altura total de la pantalla
 
+// constantes y variables globales
 // puntuación
 let score = 0;
 
@@ -18,8 +19,8 @@ let vidas = "❤❤❤";
 // sistema de inmunidad (escudo contra borrachos)
 let tieneEscudo = false;
 
-// // escudo
-// let escudo = "Escudo:";
+// nombre de la persona jugadora
+export let nombre = "";
 
 // Detectar si es un dispositivo móvil
 const isMobile =
@@ -221,6 +222,11 @@ scene("menu", () => {
     z(2),
   ]);
 
+  // usar teclado para iniciar
+  onKeyPress("enter", () => {
+    go("como-jugar");
+  });
+
   startBtn.onClick(() => {
     go("como-jugar");
   });
@@ -252,7 +258,7 @@ scene("como-jugar", () => {
   if (isMobile) {
     add([
       text(
-        "Instrucciones\n- Use el botón ↑ para saltar. ¡Puede hacer saltos dobles!\n- Use las flechas ← y → para moverse hacia atrás y adelante, respectivamente.\nImportante: Si retrocede mucho, la cerveza desaparece y hay que reiniciar el juego.\n- Si colisiona con un borracho pierde una vida ♥️.\n- Si toca una bacteria pierde el juego.\n- Si toca un lúpulo obtiene protección contra el siguiente borracho que llegue.\n- Si toca la cebada obtiene una vida extra",
+        "Instrucciones\n- Use el botón ↑ para saltar. ¡Puede hacer saltos dobles!\n- Use las flechas ← y → para moverse hacia atrás y adelante, respectivamente.\nImportante: Si retrocede mucho, la cerveza desaparece y hay que reiniciar el juego.\n- Si colisiona con un borracho pierde una vida ♥️.\n- Si toca una bacteria pierde el juego.\n- Si toca un lúpulo obtiene protección contra el siguiente borracho que llegue.\n- Si toca la cebada obtiene una vida extra.\nImportante: No use el dispositivo en modo horizontal.",
         {
           size: 36,
           color: rgb(255, 255, 255),
@@ -279,7 +285,7 @@ scene("como-jugar", () => {
     // texto de instrucciones (dentro del fondo)
     add([
       text(
-        "Instrucciones\n- Use la barra de espacio para saltar. ¡Puede hacer saltos dobles!\n- Use las flechas izquierda y derecha para moverse hacia atrás y adelante, respectivamente.\nImportante: Si retrocede mucho, la cerveza desaparece y hay que reiniciar el juego.\n- Si colisiona con un borracho pierde una vida ♥️.\n- Si toca una bacteria pierde el juego.\n- Si toca un lúpulo obtiene protección contra el siguiente borracho que llegue.\n- Si toca la cebada obtiene una vida extra",
+        "Instrucciones\n- Use la barra de espacio para saltar. ¡Puede hacer saltos dobles!\n- Use las flechas izquierda y derecha para moverse hacia atrás y adelante, respectivamente.\nImportante: Si retrocede mucho, la cerveza desaparece y hay que reiniciar el juego.\n- Si colisiona con un borracho pierde una vida ♥️.\n- Si toca una bacteria pierde el juego.\n- Si toca un lúpulo obtiene protección contra el siguiente borracho que llegue.\n- Si toca la cebada obtiene una vida extra.",
         {
           size: 24,
           color: rgb(255, 255, 255),
@@ -327,6 +333,11 @@ scene("como-jugar", () => {
     z(2),
   ]);
 
+  // usar teclado para iniciar
+  onKeyPress("enter", () => {
+    go("juego");
+  });
+
   startBtn.onClick(() => {
     go("juego");
   });
@@ -371,7 +382,7 @@ scene("juego", () => {
 
   // fondo para las vidas
   const fondoVidas = add([
-    rect(isMobile ? 50 : 110, isMobile ? 150 : 40), 
+    rect(isMobile ? 50 : 110, isMobile ? 150 : 40),
     pos(isMobile ? 16 : width() / 2 - 5, isMobile ? 180 : 16),
     color(0, 0, 0),
     opacity(0.5),
@@ -387,7 +398,7 @@ scene("juego", () => {
 
   // fondo para el escudo
   add([
-    rect(isMobile ? 200 : 185, isMobile ? 80 : 33),
+    rect(isMobile ? 200 : 240, isMobile ? 80 : 33),
     pos(isMobile ? 16 : width() - 250, isMobile ? 500 : 16),
     color(0, 0, 0),
     opacity(0.5),
@@ -668,6 +679,7 @@ scene("juego", () => {
     cerveza.hurt(1);
     vidas = vidas.slice(0, -1);
     vidasLabel.text = vidas.toString();
+    fondoVidas.width -= 25; // ajustar el fondo según las vidas 
     // si la vida = 0, se pierde
     if (cerveza.hp() <= 0) {
       destroy(cerveza);
@@ -818,10 +830,172 @@ scene("perdido", () => {
     z(1),
   ]);
 
+  // guardar puntuación
+  // botón guardar
+  const btnGuardar = vec2(width() / 2, height() / 2 + 275);
+  const guardarBtn = add([
+    rect(400, 60),
+    pos(btnGuardar),
+    anchor("center"),
+    color(255, 255, 0),
+    outline(6),
+    area(),
+    z(1),
+  ]);
+
+  // texto del botón para guardar
+  add([
+    text("Guardar Puntuación", { size: 36 }),
+    pos(btnGuardar),
+    anchor("center"),
+    color(0, 0, 0),
+    z(2),
+  ]);
+
+  // guardar puntuación
+  guardarBtn.onClick(() => {
+    go("teclado");
+  });
+
+  // reiniciar juego
   startBtn.onClick(() => {
     window.location.reload();
   });
 });
+
+// escena teclado, para ingresar nombre de la persona jugadora
+loadSprite("fondo-nombre", "./sprites/fondo-nombre.png");
+scene("teclado", () => {
+  // fondo responsive
+  getSprite("fondo-nombre").then((backgroundSprite) => {
+    if (backgroundSprite) {
+      const scaleX = width() / backgroundSprite.width;
+      const scaleY = height() / backgroundSprite.height;
+      const backgroundScale = Math.max(scaleX, scaleY);
+      add([
+        sprite("fondo-nombre"),
+        pos(width() / 2, height() / 2),
+        anchor("center"),
+        scale(backgroundScale),
+        z(-10),
+      ]);
+    }
+  });
+
+  // texto de instrucciones
+  add([
+    text("Escriba su nombre", { size: 48 }),
+    pos(width() / 2, height() / 2 - 100),
+    anchor("center"),
+    color(255, 255, 255),
+    z(3),
+  ]);
+  // fondo para el texto de instrucciones
+  add([
+    rect(500, 80),
+    pos(width() / 2, height() / 2 - 100),
+    anchor("center"),
+    color(0, 0, 0),
+    opacity(0.7),
+    z(1),
+  ]);
+
+  // texto del nombre
+  const nombreTexto = add([
+    text(`${nombre}`, {
+      size: 32,
+    }),
+    pos(width() / 2, height() / 2),
+    anchor("center"),
+    z(3),
+  ]);
+  // fondo para el texto del nombre
+  add([
+    rect(400, 50),
+    pos(width() / 2, height() / 2),
+    anchor("center"),
+    color(0, 0, 0),
+    opacity(0.7),
+    z(1),
+  ]);
+
+  // Función para actualizar el texto
+  function actualizarNombre() {
+    nombreTexto.text = `${nombre}`;
+  }
+
+  // Manejar todas las letras del alfabeto
+  const letras = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+  for (const letra of letras) {
+    onKeyPress(letra, () => {
+      nombre += letra;
+      actualizarNombre();
+    });
+  }
+
+  // Manejar espacio
+  onKeyPress("space", () => {
+    nombre += " ";
+    actualizarNombre();
+  });
+
+  // Manejar borrar (tecla backspace)
+  onKeyPress("backspace", () => {
+    nombre = nombre.slice(0, -1); // quitar última letra
+    actualizarNombre();
+  });
+
+  // puntuación
+  add([
+    text(`Puntuación: ${score}`, { size: isMobile ? 50 : 32 }),
+    pos(width() / 2, height() / 2 - 240),
+    anchor("center"),
+    color(255, 0, 0),
+    z(2),
+  ]);
+
+  // fondo para el texto de puntuación
+  add([
+    rect(isMobile ? 550 : 300, isMobile ? 100 : 50),
+    pos(width() / 2, height() / 2 - 240),
+    anchor("center"),
+    color(0, 0, 0),
+    opacity(0.8),
+    z(1),
+  ]);
+
+   // guardar puntuación
+  // botón siguiente
+  const btnSiguiente = vec2(width() / 2, height() / 2 + 275);
+  const siguienteBtn = add([
+    rect(400, 60),
+    pos(btnSiguiente),
+    anchor("center"),
+    color(255, 255, 0),
+    outline(6),
+    area(),
+    z(1),
+  ]);
+
+  // texto del botón para siguiente
+  add([
+    text("Siguiente", { size: 36 }),
+    pos(btnSiguiente),
+    anchor("center"),
+    color(0, 0, 0),
+    z(2),
+  ]);
+
+  // guardar puntuación
+  siguienteBtn.onClick(() => {
+    go("highScores");
+  });
+
+
+});
+
+// go("perdido");
 
 // DESCOMENTAR AL FINAL
 go("menu");
