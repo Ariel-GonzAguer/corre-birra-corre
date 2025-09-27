@@ -138,20 +138,20 @@ scene("menu", () => {
   // texto de título
   add([
     text("¡Corre Birra Corre!", {
-      size: isMobile ? 64 : 48,
+      size: isMobile ? 74 : 48,
       color: rgb(255, 255, 255),
       width: width(),
       align: "center",
     }),
-    pos(width() / 2, 100),
+    pos(width() / 2, 200),
     anchor("center"),
     z(1),
   ]);
 
   // fondo para título
   add([
-    rect(isMobile ? 800 : 600, isMobile ? 100 : 80),
-    pos(width() / 2, 100),
+    rect(isMobile ? 900 : 600, isMobile ? 150 : 80),
+    pos(width() / 2, 200),
     anchor("center"),
     color(0, 0, 0),
     opacity(0.7),
@@ -166,7 +166,7 @@ scene("menu", () => {
       width: width(),
       align: "center",
     }),
-    pos(width() / 2, isMobile ? 600 : 200),
+    pos(width() / 2, isMobile ? 700 : 200),
     anchor("center"),
     z(1),
   ]);
@@ -174,7 +174,7 @@ scene("menu", () => {
   // fondo para subtítulo
   add([
     rect(isMobile ? 850 : 600, isMobile ? 100 : 50),
-    pos(width() / 2, isMobile ? 600 : 200),
+    pos(width() / 2, isMobile ? 700 : 200),
     anchor("center"),
     color(0, 0, 0),
     opacity(0.7),
