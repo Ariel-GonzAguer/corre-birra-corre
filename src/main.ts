@@ -6,10 +6,11 @@ import "kaplay/global";
 import { saveScore, getTopScores } from "./servicios/apiClient";
 
 // Importar Vercel Analytics
-import { track } from "@vercel/analytics";
+import { inject, track } from "@vercel/analytics";
 
-// Track pageview
-track("pageview");
+// Inicializar Vercel Analytics
+// NOTA: Las analíticas solo funcionan en producción (desplegado en Vercel)
+inject();
 
 kaplay({
   debugKey: "p",
@@ -125,6 +126,9 @@ loadSprite("fondo-menu", "./sprites/fondo-menu.png");
 loadSprite("gatoRojoLab", "./sprites/gatoRojoLab-logo.png");
 
 scene("menu", () => {
+  // Track página del menú
+  track("page_view", { page: "menu" });
+  
   // color de fondo en rgb
   setBackground(0, 0, 0);
 
@@ -344,10 +348,12 @@ scene("como-jugar", () => {
 
   // usar teclado para iniciar
   onKeyPress("enter", () => {
+    track("game_started", { method: "keyboard" });
     go("juego");
   });
 
   startBtn.onClick(() => {
+    track("game_started", { method: "button" });
     go("juego");
   });
 });
@@ -692,6 +698,7 @@ scene("juego", () => {
     // si la vida = 0, se pierde
     if (cerveza.hp() <= 0) {
       destroy(cerveza);
+      track("game_over", { final_score: score, reason: "no_lives" });
       go("perdido");
     }
   });
@@ -700,6 +707,7 @@ scene("juego", () => {
     vidas = cerveza.hp();
     vidasLabel.text = vidas.toString();
     cerveza.hp(0);
+    track("game_over", { final_score: score, reason: "bacteria" });
     go("perdido");
   });
 
@@ -1005,6 +1013,7 @@ scene("teclado", () => {
         return;
       }
       await saveScore(nombre, score);
+      track("score_saved", { score: score, player_name: nombre });
       go("highScores");
     } catch (error) {
       console.error("Error al guardar la puntuación:", error);
@@ -1015,6 +1024,9 @@ scene("teclado", () => {
 // escena de puntuaciones altas
 loadSprite("fondo-puntajesAltos", "./sprites/fondo-puntajesAltos.png");
 scene("highScores", async () => {
+  // Track página de puntajes altos
+  track("page_view", { page: "high_scores" });
+  
   // fondo responsive
   getSprite("fondo-puntajesAltos").then((backgroundSprite) => {
     if (backgroundSprite) {
