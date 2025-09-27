@@ -830,32 +830,34 @@ scene("perdido", () => {
     z(1),
   ]);
 
-  // guardar puntuación
-  // botón guardar
-  const btnGuardar = vec2(width() / 2, height() / 2 + 275);
-  const guardarBtn = add([
-    rect(400, 60),
-    pos(btnGuardar),
-    anchor("center"),
-    color(255, 255, 0),
-    outline(6),
-    area(),
-    z(1),
-  ]);
+  if (!isMobile && score > 0) {
+    // guardar puntuación
+    // botón guardar
+    const btnGuardar = vec2(width() / 2, height() / 2 + 275);
+    const guardarBtn = add([
+      rect(400, 60),
+      pos(btnGuardar),
+      anchor("center"),
+      color(255, 255, 0),
+      outline(6),
+      area(),
+      z(1),
+    ]);
 
-  // texto del botón para guardar
-  add([
-    text("Guardar Puntuación", { size: 36 }),
-    pos(btnGuardar),
-    anchor("center"),
-    color(0, 0, 0),
-    z(2),
-  ]);
+    // texto del botón para guardar
+    add([
+      text("Guardar Puntuación", { size: 36 }),
+      pos(btnGuardar),
+      anchor("center"),
+      color(0, 0, 0),
+      z(2),
+    ]);
 
-  // guardar puntuación
-  guardarBtn.onClick(() => {
-    go("teclado");
-  });
+    // guardar puntuación
+    guardarBtn.onClick(() => {
+      go("teclado");
+    });
+  }
 
   // reiniciar juego
   startBtn.onClick(() => {
@@ -900,27 +902,6 @@ scene("teclado", () => {
     z(1),
   ]);
 
-  // Crear input invisible para móviles
-  let inputElement = null;
-  if (isMobile) {
-    inputElement = document.createElement("input");
-    inputElement.type = "text";
-    inputElement.style.position = "absolute";
-    inputElement.style.left = "-9999px"; // fuera de pantalla
-    inputElement.style.opacity = "0";
-    inputElement.style.pointerEvents = "none";
-    document.body.appendChild(inputElement);
-
-    // Enfocar para mostrar teclado
-    inputElement.focus();
-
-    // Escuchar cambios en el input
-    inputElement.addEventListener("input", (e) => {
-      nombre = e.target.value;
-      actualizarNombre();
-    });
-  }
-
   // texto del nombre
   const nombreTexto = add([
     text(`${nombre}`, { size: 32 }),
@@ -932,9 +913,6 @@ scene("teclado", () => {
   // Función para actualizar el texto
   function actualizarNombre() {
     nombreTexto.text = `${nombre}`;
-    if (inputElement) {
-      inputElement.value = nombre; // sincronizar
-    }
   }
 
   // fondo para el texto del nombre
@@ -968,13 +946,6 @@ scene("teclado", () => {
       actualizarNombre();
     });
   }
-
-  // Limpiar el input al salir de la escena
-  onSceneLeave(() => {
-    if (inputElement) {
-      document.body.removeChild(inputElement);
-    }
-  });
 
   // puntuación
   add([
