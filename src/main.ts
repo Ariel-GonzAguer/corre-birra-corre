@@ -144,7 +144,7 @@ scene("menu", () => {
       width: width(),
       align: "center",
     }),
-    pos(width() / 2, 200),
+    pos(width() / 2, 50),
     anchor("center"),
     z(1),
   ]);
@@ -152,7 +152,7 @@ scene("menu", () => {
   // fondo para título
   add([
     rect(isMobile ? 900 : 600, isMobile ? 150 : 80),
-    pos(width() / 2, 200),
+    pos(width() / 2, 50),
     anchor("center"),
     color(0, 0, 0),
     opacity(0.7),
@@ -398,7 +398,7 @@ scene("juego", () => {
 
   // fondo para el escudo
   add([
-    rect(isMobile ? 250 : 185, isMobile ? 40 : 33),
+    rect(isMobile ? 250 : 240, isMobile ? 40 : 33),
     pos(isMobile ? 16 : width() - 250, isMobile ? 500 : 16),
     color(0, 0, 0),
     opacity(0.5),
