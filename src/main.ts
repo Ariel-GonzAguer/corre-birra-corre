@@ -382,11 +382,7 @@ scene("juego", () => {
 
   // fondo para las vidas
   const fondoVidas = add([
-<<<<<<< HEAD
-    rect(isMobile ? 50 : 110, isMobile ? 150 : 40),
-=======
     rect(isMobile ? 200 : 110, isMobile ? 70 : 40), 
->>>>>>> 31cc6155814ad6ed22f4d23fd86ad69f747cd547
     pos(isMobile ? 16 : width() / 2 - 5, isMobile ? 180 : 16),
     color(0, 0, 0),
     opacity(0.5),
@@ -402,11 +398,7 @@ scene("juego", () => {
 
   // fondo para el escudo
   add([
-<<<<<<< HEAD
-    rect(isMobile ? 200 : 240, isMobile ? 80 : 33),
-=======
     rect(isMobile ? 250 : 185, isMobile ? 40 : 33),
->>>>>>> 31cc6155814ad6ed22f4d23fd86ad69f747cd547
     pos(isMobile ? 16 : width() - 250, isMobile ? 500 : 16),
     color(0, 0, 0),
     opacity(0.5),
