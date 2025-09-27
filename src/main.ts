@@ -355,7 +355,7 @@ scene("juego", () => {
 
   // fondo para el score
   add([
-    rect(isMobile ? 200 : 80, isMobile ? 100 : 40),
+    rect(isMobile ? 180 : 80, isMobile ? 100 : 40),
     pos(16, 16),
     color(0, 0, 0),
     opacity(0.5),
@@ -371,8 +371,8 @@ scene("juego", () => {
 
   // fondo para las vidas
   const fondoVidas = add([
-    rect(110, isMobile ? 150 : 40), 
-    pos(isMobile ? 16 : width() / 2 - 5, isMobile ? 100 : 16),
+    rect(isMobile ? 50 : 110, isMobile ? 150 : 40), 
+    pos(isMobile ? 16 : width() / 2 - 5, isMobile ? 180 : 16),
     color(0, 0, 0),
     opacity(0.5),
     z(5),
@@ -387,7 +387,7 @@ scene("juego", () => {
 
   // fondo para el escudo
   add([
-    rect(185, 33),
+    rect(isMobile ? 200 : 185, isMobile ? 80 : 33),
     pos(isMobile ? 16 : width() - 250, isMobile ? 500 : 16),
     color(0, 0, 0),
     opacity(0.5),
@@ -395,7 +395,7 @@ scene("juego", () => {
   ]);
   // texto del escudo
   const escudoLabel = add([
-    text("Escudo: No", { size: 32 }),
+    text("Escudo: No", { size: 40 }),
     pos(isMobile ? 16 : width() - 250, isMobile ? 500 : 16),
     color(255, 255, 255),
     z(6),
