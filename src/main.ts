@@ -5,6 +5,11 @@ import "kaplay/global";
 // Importar funciones de Firebase
 import { saveScore, getTopScores } from "./servicios/apiClient";
 
+// importar funciones firebase para límite diario
+import { getRateLimitStatus } from "./servicios/apiClient";
+const { canSave, remainingAttempts, totalAttempts } =
+  await getRateLimitStatus();
+
 // Importar Vercel Analytics
 import { inject, track } from "@vercel/analytics";
 
@@ -128,7 +133,7 @@ loadSprite("gatoRojoLab", "./sprites/gatoRojoLab-logo.png");
 scene("menu", () => {
   // Track página del menú
   track("page_view", { page: "menu" });
-  
+
   // color de fondo en rgb
   setBackground(0, 0, 0);
 
@@ -847,7 +852,8 @@ scene("perdido", () => {
     z(1),
   ]);
 
-  if (!isMobile && score > 0) {
+  // Si no es móvil, la puntuación es mayor a 0 y puede guardar, mostrar opción de guardar
+  if (!isMobile && score > 0 && canSave) {
     // guardar puntuación
     // botón guardar
     const btnGuardar = vec2(width() / 2, height() / 2 + 275);
@@ -874,6 +880,17 @@ scene("perdido", () => {
     guardarBtn.onClick(() => {
       go("teclado");
     });
+    //
+  } else if (!isMobile && score > 0 && !canSave) {
+    add([
+      text(`Puntuaciones alcanzado\nMáximo de 10 por día.\nIntenta mañana 🍻`, {
+        size: 36,
+      }),
+      pos(width() / 2, height() / 2 + 200),
+      anchor("center"),
+      color(255, 0, 0),
+      z(2),
+    ]);
   }
 
   // reiniciar juego
@@ -997,7 +1014,7 @@ scene("teclado", () => {
   ]);
 
   // texto del botón para siguiente
-  add([
+  const siguienteBtnText = add([
     text("Siguiente", { size: 36 }),
     pos(btnSiguiente),
     anchor("center"),
@@ -1012,6 +1029,24 @@ scene("teclado", () => {
         alert("Por favor, ingrese un nombre válido.");
         return;
       }
+      destroy(siguienteBtnText);
+      destroy(siguienteBtn);
+      add([
+        rect(400, 60),
+        pos(btnSiguiente),
+        anchor("center"),
+        color(0, 200, 0),
+        outline(6),
+        z(1),
+      ]);
+      add([
+        text("Guardando...", { size: 36 }),
+        pos(btnSiguiente),
+        anchor("center"),
+        color(0, 0, 0),
+        z(2),
+      ]);
+
       await saveScore(nombre, score);
       track("score_saved", { score: score, player_name: nombre });
       go("highScores");
@@ -1026,7 +1061,7 @@ loadSprite("fondo-puntajesAltos", "./sprites/fondo-puntajesAltos.png");
 scene("highScores", async () => {
   // Track página de puntajes altos
   track("page_view", { page: "high_scores" });
-  
+
   // fondo responsive
   getSprite("fondo-puntajesAltos").then((backgroundSprite) => {
     if (backgroundSprite) {
@@ -1076,7 +1111,9 @@ scene("highScores", async () => {
     } else {
       topScores.forEach((score, index) => {
         add([
-          text(`${index + 1}. ${score.nombre}: ${score.puntuacion}`, { size: 32 }),
+          text(`${index + 1}. ${score.nombre}: ${score.puntuacion}`, {
+            size: 32,
+          }),
           pos(width() / 2, 180 + index * 40),
           anchor("center"),
           color(255, 255, 255),
