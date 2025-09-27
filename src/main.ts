@@ -144,7 +144,7 @@ scene("menu", () => {
       width: width(),
       align: "center",
     }),
-    pos(width() / 2, 50),
+    pos(width() / 2, isMobile ? 100 : 50),
     anchor("center"),
     z(1),
   ]);
@@ -312,8 +312,8 @@ scene("como-jugar", () => {
 
   // botón iniciar
   const btnPos = isMobile
-    ? vec2(width() / 2, height() / 2 + 600)
-    : vec2(width() / 2, height() / 2 + 200);
+    ? vec2(width() / 2, height() / 2 + 650)
+    : vec2(width() / 2, height() / 2 + 250);
   const startBtn = add([
     rect(isMobile ? 300 : 250, 60),
     pos(btnPos),
@@ -382,7 +382,7 @@ scene("juego", () => {
 
   // fondo para las vidas
   const fondoVidas = add([
-    rect(isMobile ? 200 : 110, isMobile ? 70 : 40), 
+    rect(isMobile ? 200 : 110, isMobile ? 70 : 40),
     pos(isMobile ? 16 : width() / 2 - 5, isMobile ? 180 : 16),
     color(0, 0, 0),
     opacity(0.5),
@@ -679,7 +679,7 @@ scene("juego", () => {
     cerveza.hurt(1);
     vidas = vidas.slice(0, -1);
     vidasLabel.text = vidas.toString();
-    fondoVidas.width -= 25; // ajustar el fondo según las vidas 
+    fondoVidas.width -= 25; // ajustar el fondo según las vidas
     // si la vida = 0, se pierde
     if (cerveza.hp() <= 0) {
       destroy(cerveza);
@@ -900,50 +900,80 @@ scene("teclado", () => {
     z(1),
   ]);
 
+  // Crear input invisible para móviles
+  let inputElement = null;
+  if (isMobile) {
+    inputElement = document.createElement("input");
+    inputElement.type = "text";
+    inputElement.style.position = "absolute";
+    inputElement.style.left = "-9999px"; // fuera de pantalla
+    inputElement.style.opacity = "0";
+    inputElement.style.pointerEvents = "none";
+    document.body.appendChild(inputElement);
+
+    // Enfocar para mostrar teclado
+    inputElement.focus();
+
+    // Escuchar cambios en el input
+    inputElement.addEventListener("input", (e) => {
+      nombre = e.target.value;
+      actualizarNombre();
+    });
+  }
+
   // texto del nombre
   const nombreTexto = add([
-    text(`${nombre}`, {
-      size: 32,
-    }),
+    text(`${nombre}`, { size: 32 }),
     pos(width() / 2, height() / 2),
     anchor("center"),
     z(3),
-  ]);
-  // fondo para el texto del nombre
-  add([
-    rect(400, 50),
-    pos(width() / 2, height() / 2),
-    anchor("center"),
-    color(0, 0, 0),
-    opacity(0.7),
-    z(1),
   ]);
 
   // Función para actualizar el texto
   function actualizarNombre() {
     nombreTexto.text = `${nombre}`;
+    if (inputElement) {
+      inputElement.value = nombre; // sincronizar
+    }
   }
 
-  // Manejar todas las letras del alfabeto
-  const letras = "abcdefghijklmnopqrstuvwxyz0123456789";
+  // fondo para el texto del nombre
+  add([
+    rect(400, 60),
+    pos(width() / 2, height() / 2),
+    anchor("center"),
+    color(0, 0, 0),
+    opacity(0.7),
+    z(2),
+  ]);
 
-  for (const letra of letras) {
-    onKeyPress(letra, () => {
-      nombre += letra;
+  // Para desktop: mantener los controles de teclado existentes
+  if (!isMobile) {
+    const letras = "abcdefghijklmnopqrstuvwxyz0123456789";
+
+    for (const letra of letras) {
+      onKeyPress(letra, () => {
+        nombre += letra;
+        actualizarNombre();
+      });
+    }
+
+    onKeyPress("space", () => {
+      nombre += " ";
+      actualizarNombre();
+    });
+
+    onKeyPress("backspace", () => {
+      nombre = nombre.slice(0, -1);
       actualizarNombre();
     });
   }
 
-  // Manejar espacio
-  onKeyPress("space", () => {
-    nombre += " ";
-    actualizarNombre();
-  });
-
-  // Manejar borrar (tecla backspace)
-  onKeyPress("backspace", () => {
-    nombre = nombre.slice(0, -1); // quitar última letra
-    actualizarNombre();
+  // Limpiar el input al salir de la escena
+  onSceneLeave(() => {
+    if (inputElement) {
+      document.body.removeChild(inputElement);
+    }
   });
 
   // puntuación
@@ -965,7 +995,7 @@ scene("teclado", () => {
     z(1),
   ]);
 
-   // guardar puntuación
+  // guardar puntuación
   // botón siguiente
   const btnSiguiente = vec2(width() / 2, height() / 2 + 275);
   const siguienteBtn = add([
@@ -991,8 +1021,6 @@ scene("teclado", () => {
   siguienteBtn.onClick(() => {
     go("highScores");
   });
-
-
 });
 
 // go("perdido");
