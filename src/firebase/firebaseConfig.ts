@@ -127,7 +127,7 @@ function getRateLimitKey(ip: string): string {
 }
 
 // Constante para el límite máximo diario
-const MAX_DAILY_ATTEMPTS = 3;
+const MAX_DAILY_ATTEMPTS = 5;
 
 // Función interna para obtener el estado del rate limiting
 async function getRateLimitDocument(ip: string) {

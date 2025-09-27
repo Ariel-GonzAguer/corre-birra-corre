@@ -10,6 +10,7 @@ import { getRateLimitStatus } from "./servicios/apiClient";
 
 // importar utils
 import { createResponsiveBackground } from "./utils/utils";
+import { GAME_CONFIG, UI_CONFIG } from "./utils/config";
 
 // Importar Vercel Analytics
 import { inject, track } from "@vercel/analytics";
@@ -19,7 +20,7 @@ import { inject, track } from "@vercel/analytics";
 inject();
 
 kaplay({
-  debugKey: "p",
+  debugKey: GAME_CONFIG.DEBUGKEY,
 });
 
 // entre mayor sea el eje Y, más lejos de la parte superior (más abajo en la pantalla)
@@ -137,31 +138,12 @@ scene("menu", () => {
 
   // color de fondo en rgb
   setBackground(0, 0, 0);
-
-  // imagen de fondo responsive
-  // getSprite("fondo-menu").then((menuSprite) => {
-  //   if (menuSprite) {
-  //     const scaleX = width() / menuSprite.width;
-  //     const scaleY = height() / menuSprite.height;
-  //     const menuScale = Math.max(scaleX, scaleY);
-
-  //     add([
-  //       sprite("fondo-menu"),
-  //       pos(width() / 2, height() / 2),
-  //       anchor("center"),
-  //       scale(menuScale),
-  //       z(-10),
-  //     ]);
-  //   }
-  // });
-
-  // texto de título
-
+  // fondo responsive
   createResponsiveBackground("fondo-menu");
 
   add([
     text("¡Corre Birra Corre!", {
-      size: isMobile ? 74 : 48,
+      size: isMobile ? UI_CONFIG.MOBILE.TITLE_SIZE : UI_CONFIG.DESKTOP.TITLE_SIZE,
       color: rgb(255, 255, 255),
       width: width(),
       align: "center",
@@ -184,7 +166,7 @@ scene("menu", () => {
   // subtítulo
   add([
     text("¡Huye de los borrachos y bacterias!", {
-      size: isMobile ? 38 : 28,
+      size: isMobile ? UI_CONFIG.MOBILE.SUBTITLE_SIZE : UI_CONFIG.DESKTOP.SUBTITLE_SIZE,
       color: rgb(255, 255, 255),
       width: width(),
       align: "center",
@@ -359,7 +341,7 @@ loadSprite("fondo", "./sprites/fondo-juego.png");
 
 scene("juego", () => {
   // gravedad → va dentro de la escena
-  setGravity(1900);
+  setGravity(GAME_CONFIG.GRAVITY);
 
   // personaje principal y acciones
   const cerveza = add([
@@ -384,7 +366,7 @@ scene("juego", () => {
   ]);
   // texto del score
   const scoreLabel = add([
-    text(score, { size: isMobile ? 65 : 32 }),
+    text(score, { size: isMobile ? UI_CONFIG.MOBILE.SCORE_SIZE : UI_CONFIG.DESKTOP.SCORE_SIZE }),
     color(255, 255, 255),
     pos(24, 24),
     z(6),
@@ -400,7 +382,7 @@ scene("juego", () => {
   ]);
   // texto de las vidas
   const vidasLabel = add([
-    text(vidas, { size: isMobile ? 65 : 32 }),
+    text(vidas, { size: isMobile ? UI_CONFIG.MOBILE.SCORE_SIZE : UI_CONFIG.DESKTOP.SCORE_SIZE }),
     pos(isMobile ? 16 : width() / 2, isMobile ? 180 : 24),
     color(255, 0, 0),
     z(6),
@@ -433,7 +415,7 @@ scene("juego", () => {
   // Controlar el salto
   // control de saltos (max 1 salto seguido)
   let jumpCount = 0;
-  const maxJumps = 1;
+  const maxJumps = GAME_CONFIG.MAX_JUMPS;
 
   // Controles táctiles para móviles
   if (isMobile) {
@@ -509,7 +491,7 @@ scene("juego", () => {
       // Verificar clic en botón de salto
       if (jumpButton.isHovering()) {
         if (jumpCount < maxJumps) {
-          cerveza.jump(1060);
+          cerveza.jump(GAME_CONFIG.JUMP_FORCE);
           jumpCount++;
         }
       }
@@ -547,7 +529,7 @@ scene("juego", () => {
   // saltos
   onKeyPress("space", () => {
     if (jumpCount < maxJumps) {
-      cerveza.jump(1060);
+      cerveza.jump(GAME_CONFIG.JUMP_FORCE);
       jumpCount++;
     }
   });
@@ -620,13 +602,13 @@ scene("juego", () => {
     });
 
     // llamar a la función de nuevo tras un tiempo aleatorio
-    wait(rand(1.25, 4), () => {
+    wait(rand(GAME_CONFIG.SPAWN_RATES.CHARACTERS.min, GAME_CONFIG.SPAWN_RATES.CHARACTERS.max), () => {
       aparecionPersonajes();
     });
   }
 
   // activar el spawn
-  aparecionPersonajes(); // ******************
+  aparecionPersonajes();
 
   // aparición power-ups
   function aparecionPowerUps() {
@@ -666,7 +648,7 @@ scene("juego", () => {
     });
 
     // llamar a la función de nuevo tras un tiempo aleatorio
-    wait(rand(10, 20), () => {
+    wait(rand(GAME_CONFIG.SPAWN_RATES.POWERUPS.min, GAME_CONFIG.SPAWN_RATES.POWERUPS.max), () => {
       aparecionPowerUps();
     });
   }
@@ -850,7 +832,7 @@ scene("perdido", async () => {
     //
   } else if (!isMobile && score > 0 && !canSave) {
     add([
-      rect(370, 80),
+      rect(440, 80),
       pos(btnGuardar),
       anchor("center"),
       color(255, 255, 0),
@@ -859,7 +841,7 @@ scene("perdido", async () => {
       z(1),
     ]);
     add([
-      text(`Puntuaciones alcanzado\nMáximo de 10 por día.\nIntenta mañana 🍻`, {
+      text(`Registro de puntuaciones alcanzado.\nMáximo de 5 por día.\nIntenta mañana 🍻`, {
         size: 22,
         align: "center",
       }),
