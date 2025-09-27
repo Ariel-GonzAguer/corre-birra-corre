@@ -152,7 +152,7 @@ scene("menu", () => {
   // fondo para título
   add([
     rect(isMobile ? 900 : 600, isMobile ? 150 : 80),
-    pos(width() / 2, 50),
+    pos(width() / 2, isMobile ? 100 : 50),
     anchor("center"),
     color(0, 0, 0),
     opacity(0.7),
@@ -313,7 +313,7 @@ scene("como-jugar", () => {
   // botón iniciar
   const btnPos = isMobile
     ? vec2(width() / 2, height() / 2 + 600)
-    : vec2(width() / 2, height() / 2 + 250);
+    : vec2(width() / 2, height() / 2 + 200);
   const startBtn = add([
     rect(isMobile ? 300 : 250, 60),
     pos(btnPos),
