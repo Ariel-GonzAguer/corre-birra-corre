@@ -12,6 +12,8 @@ export const GAME_CONFIG = {
     POWERUPS: 200,
   },
   DEBUGKEY: "p",
+  // Configuración del límite diario de puntajes
+  DAILY_SCORE_LIMIT: 5,
 };
 
 export const UI_CONFIG = {

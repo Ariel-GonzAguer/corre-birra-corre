@@ -1,7 +1,8 @@
 import { 
   saveScore as firebaseSaveScore, 
   getTopScores as firebaseGetTopScores,
-  checkRateLimitStatus 
+  checkRateLimitStatus,
+  MAX_DAILY_ATTEMPTS
 } from "../firebase/firebaseConfig";
 
 export interface Score {
@@ -30,7 +31,7 @@ export async function saveScore(
     
     // Manejar específicamente el error de límite excedido
     if (error.message === "RATE_LIMIT_EXCEEDED") {
-      throw new Error("Límite diario alcanzado: Solo se permiten 10 puntajes por día por usuario. ¡Inténtalo mañana!");
+      throw new Error(`Límite diario alcanzado: Solo se permiten ${MAX_DAILY_ATTEMPTS} puntajes por día por usuario. ¡Inténtalo mañana!`);
     }
     
     throw error;
@@ -52,10 +53,7 @@ export async function getTopScores(limit: number = 25): Promise<Score[]> {
 
 export async function getRateLimitStatus(): Promise<RateLimitStatus> {
   try {
-    console.log("Verificando estado de límite diario...");
-    
     const status = await checkRateLimitStatus();
-    console.log("Estado del límite:", status);
     
     return status;
   } catch (error) {
@@ -68,3 +66,6 @@ export async function getRateLimitStatus(): Promise<RateLimitStatus> {
     };
   }
 }
+
+// Exportar constante de límite
+export { MAX_DAILY_ATTEMPTS };

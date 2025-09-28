@@ -3,7 +3,7 @@ import kaplay from "kaplay";
 import "kaplay/global";
 
 // Importar funciones de Firebase
-import { saveScore, getTopScores } from "./servicios/apiClient";
+import { saveScore, getTopScores, MAX_DAILY_ATTEMPTS } from "./servicios/apiClient";
 
 // importar funciones firebase para límite diario
 import { getRateLimitStatus } from "./servicios/apiClient";
@@ -11,6 +11,12 @@ import { getRateLimitStatus } from "./servicios/apiClient";
 // importar utils
 import { createResponsiveBackground } from "./utils/utils";
 import { GAME_CONFIG, UI_CONFIG } from "./utils/config";
+import { 
+  setupGameControls, 
+  setupTextInputControls, 
+  setupNavigationControls,
+  isMobile 
+} from "./utils/controls";
 
 // Importar Vercel Analytics
 import { inject, track } from "@vercel/analytics";
@@ -18,6 +24,8 @@ import { inject, track } from "@vercel/analytics";
 // Inicializar Vercel Analytics
 // NOTA: Las analíticas solo funcionan en producción (desplegado en Vercel)
 inject();
+
+
 
 kaplay({
   debugKey: GAME_CONFIG.DEBUGKEY,
@@ -39,11 +47,26 @@ let tieneEscudo = false;
 // nombre de la persona jugadora
 export let nombre = "";
 
-// Detectar si es un dispositivo móvil
-const isMobile =
-  /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-    navigator.userAgent
-  ) || "ontouchstart" in window;
+// Variables globales para control de límite diario (persisten durante toda la sesión)
+let dailyLimitChecked = false;
+let canSaveScore = true;
+let attemptsToday = 0;
+let dailyLimitStatus: any = null;
+
+// Función para verificar el límite diario solo una vez por sesión
+async function checkDailyLimitOnce() {
+  if (!dailyLimitChecked) {
+    dailyLimitStatus = await getRateLimitStatus();
+    canSaveScore = dailyLimitStatus.canSave;
+    attemptsToday = dailyLimitStatus.totalAttempts;
+    dailyLimitChecked = true;
+  }
+  return {
+    canSave: canSaveScore,
+    attemptsToday: attemptsToday,
+    status: dailyLimitStatus
+  };
+}
 
 // sprites de personajes y constantes de personajes
 // birra
@@ -132,6 +155,9 @@ loadSprite("fondo-menu", "./sprites/fondo-menu.png");
 // imagen logo Gato Rojo Lab
 loadSprite("gatoRojoLab", "./sprites/gatoRojoLab-logo.png");
 
+// Inicialización: verificar límite diario una vez al cargar el juego
+checkDailyLimitOnce();
+
 scene("menu", () => {
   // Track página del menú
   track("page_view", { page: "menu" });
@@ -143,14 +169,16 @@ scene("menu", () => {
 
   add([
     text("¡Corre Birra Corre!", {
-      size: isMobile ? UI_CONFIG.MOBILE.TITLE_SIZE : UI_CONFIG.DESKTOP.TITLE_SIZE,
+      size: isMobile
+        ? UI_CONFIG.MOBILE.TITLE_SIZE
+        : UI_CONFIG.DESKTOP.TITLE_SIZE,
       color: rgb(255, 255, 255),
       width: width(),
       align: "center",
     }),
     pos(width() / 2, isMobile ? 100 : 50),
     anchor("center"),
-    z(1),
+    z(2),
   ]);
 
   // fondo para título
@@ -160,20 +188,22 @@ scene("menu", () => {
     anchor("center"),
     color(0, 0, 0),
     opacity(0.7),
-    z(0),
+    z(1),
   ]);
 
   // subtítulo
   add([
     text("¡Huye de los borrachos y bacterias!", {
-      size: isMobile ? UI_CONFIG.MOBILE.SUBTITLE_SIZE : UI_CONFIG.DESKTOP.SUBTITLE_SIZE,
+      size: isMobile
+        ? UI_CONFIG.MOBILE.SUBTITLE_SIZE
+        : UI_CONFIG.DESKTOP.SUBTITLE_SIZE,
       color: rgb(255, 255, 255),
       width: width(),
       align: "center",
     }),
     pos(width() / 2, isMobile ? 700 : 200),
     anchor("center"),
-    z(1),
+    z(2),
   ]);
 
   // fondo para subtítulo
@@ -183,7 +213,7 @@ scene("menu", () => {
     anchor("center"),
     color(0, 0, 0),
     opacity(0.7),
-    z(0),
+    z(1),
   ]);
 
   // logo Gato Rojo Lab
@@ -227,9 +257,7 @@ scene("menu", () => {
   ]);
 
   // usar teclado para iniciar
-  onKeyPress("enter", () => {
-    go("como-jugar");
-  });
+  setupNavigationControls(() => go("como-jugar"));
 
   startBtn.onClick(() => {
     go("como-jugar");
@@ -324,7 +352,7 @@ scene("como-jugar", () => {
   ]);
 
   // usar teclado para iniciar
-  onKeyPress("enter", () => {
+  setupNavigationControls(() => {
     track("game_started", { method: "keyboard" });
     go("juego");
   });
@@ -366,7 +394,11 @@ scene("juego", () => {
   ]);
   // texto del score
   const scoreLabel = add([
-    text(score, { size: isMobile ? UI_CONFIG.MOBILE.SCORE_SIZE : UI_CONFIG.DESKTOP.SCORE_SIZE }),
+    text(score, {
+      size: isMobile
+        ? UI_CONFIG.MOBILE.SCORE_SIZE
+        : UI_CONFIG.DESKTOP.SCORE_SIZE,
+    }),
     color(255, 255, 255),
     pos(24, 24),
     z(6),
@@ -382,7 +414,11 @@ scene("juego", () => {
   ]);
   // texto de las vidas
   const vidasLabel = add([
-    text(vidas, { size: isMobile ? UI_CONFIG.MOBILE.SCORE_SIZE : UI_CONFIG.DESKTOP.SCORE_SIZE }),
+    text(vidas, {
+      size: isMobile
+        ? UI_CONFIG.MOBILE.SCORE_SIZE
+        : UI_CONFIG.DESKTOP.SCORE_SIZE,
+    }),
     pos(isMobile ? 16 : width() / 2, isMobile ? 180 : 24),
     color(255, 0, 0),
     z(6),
@@ -404,147 +440,16 @@ scene("juego", () => {
     z(6),
   ]);
 
-  // manejar la cerveza
-  cerveza.onKeyPress("right", () => {
-    cerveza.pos.x += 30;
+  // Configurar controles del juego usando el módulo modular
+  const { jumpCount, maxJumps } = setupGameControls({ 
+    cerveza, 
+    enableKeyboard: true, 
+    enableMobile: true 
   });
-  cerveza.onKeyPress("left", () => {
-    cerveza.pos.x -= 30;
-  });
 
-  // Controlar el salto
-  // control de saltos (max 1 salto seguido)
-  let jumpCount = 0;
-  const maxJumps = GAME_CONFIG.MAX_JUMPS;
-
-  // Controles táctiles para móviles
-  if (isMobile) {
-    // Botón de salto (centro-derecha de la mitad de pantalla)
-    const jumpButton = add([
-      rect(200, 200),
-      pos(width() - 100, height() * 0.5),
-      area(),
-      color(255, 255, 255),
-      opacity(0.8),
-      anchor("center"),
-      z(10),
-      "jumpButton",
-    ]);
-
-    // Texto del botón de salto
-    add([
-      text("↑", { size: 64 }),
-      pos(width() - 100, height() * 0.5),
-      color(0, 0, 0),
-      anchor("center"),
-      z(11),
-    ]);
-
-    // Botón izquierda (centro-izquierda de la mitad de pantalla)
-    const leftButton = add([
-      rect(200, 200),
-      pos(width() * 0.15, height() * 0.5),
-      area(),
-      color(255, 255, 255),
-      opacity(0.8),
-      anchor("center"),
-      z(10),
-      "leftButton",
-    ]);
-
-    // Texto del botón izquierda
-    add([
-      text("←", { size: 56 }),
-      pos(width() * 0.15, height() * 0.5),
-      color(0, 0, 0),
-      anchor("center"),
-      z(11),
-    ]);
-
-    // Botón derecha (al lado del botón izquierda)
-    const rightButton = add([
-      rect(200, 200),
-      pos(width() * 0.35, height() * 0.6),
-      area(),
-      color(255, 255, 255),
-      opacity(0.8),
-      anchor("center"),
-      z(10),
-      "rightButton",
-    ]);
-
-    // Texto del botón derecha
-    add([
-      text("→", { size: 56 }),
-      pos(width() * 0.35, height() * 0.6),
-      color(0, 0, 0),
-      anchor("center"),
-      z(11),
-    ]);
-
-    // Variables para controles táctiles
-    let leftPressed = false;
-    let rightPressed = false;
-
-    // Eventos de clic para cada botón
-    onMousePress(() => {
-      // Verificar clic en botón de salto
-      if (jumpButton.isHovering()) {
-        if (jumpCount < maxJumps) {
-          cerveza.jump(GAME_CONFIG.JUMP_FORCE);
-          jumpCount++;
-        }
-      }
-
-      // Verificar clic en botón izquierdo
-      if (leftButton.isHovering()) {
-        leftPressed = true;
-        cerveza.pos.x -= 30;
-      }
-
-      // Verificar clic en botón derecho
-      if (rightButton.isHovering()) {
-        rightPressed = true;
-        cerveza.pos.x += 30;
-      }
-    });
-
-    // Liberar botones al soltar
-    onMouseRelease(() => {
-      leftPressed = false;
-      rightPressed = false;
-    });
-
-    // Movimiento continuo mientras se mantiene presionado
-    onUpdate(() => {
-      if (leftPressed && leftButton.isHovering()) {
-        cerveza.pos.x -= 2;
-      }
-      if (rightPressed && rightButton.isHovering()) {
-        cerveza.pos.x += 2;
-      }
-    });
-  }
-
-  // saltos
-  onKeyPress("space", () => {
-    if (jumpCount < maxJumps) {
-      cerveza.jump(GAME_CONFIG.JUMP_FORCE);
-      jumpCount++;
-    }
-  });
-  // si la cerveza está en la Y del suelo, resetear
-  const groundY = height() - 60;
-  onUpdate(() => {
-    if (cerveza.pos && typeof cerveza.pos.y === "number") {
-      if (cerveza.pos.y >= groundY - 1) {
-        jumpCount = 0;
-      }
-    }
-  });
   // Resetear contador al tocar el suelo: doble mecanismo
   cerveza.onCollide("ground", () => {
-    jumpCount = 0;
+    // jumpCount = 0; // Esto lo maneja el módulo automáticamente
   });
 
   // aparición de otros personajes
@@ -602,9 +507,15 @@ scene("juego", () => {
     });
 
     // llamar a la función de nuevo tras un tiempo aleatorio
-    wait(rand(GAME_CONFIG.SPAWN_RATES.CHARACTERS.min, GAME_CONFIG.SPAWN_RATES.CHARACTERS.max), () => {
-      aparecionPersonajes();
-    });
+    wait(
+      rand(
+        GAME_CONFIG.SPAWN_RATES.CHARACTERS.min,
+        GAME_CONFIG.SPAWN_RATES.CHARACTERS.max
+      ),
+      () => {
+        aparecionPersonajes();
+      }
+    );
   }
 
   // activar el spawn
@@ -648,9 +559,15 @@ scene("juego", () => {
     });
 
     // llamar a la función de nuevo tras un tiempo aleatorio
-    wait(rand(GAME_CONFIG.SPAWN_RATES.POWERUPS.min, GAME_CONFIG.SPAWN_RATES.POWERUPS.max), () => {
-      aparecionPowerUps();
-    });
+    wait(
+      rand(
+        GAME_CONFIG.SPAWN_RATES.POWERUPS.min,
+        GAME_CONFIG.SPAWN_RATES.POWERUPS.max
+      ),
+      () => {
+        aparecionPowerUps();
+      }
+    );
   }
 
   // activar el spawn
@@ -732,9 +649,10 @@ scene("juego", () => {
 // fondo del juego
 loadSprite("fondo-perdido", "./sprites/fondo-perdido.png");
 scene("perdido", async () => {
-  // Verificar estado del límite diario
-  const rateLimitStatus = await getRateLimitStatus();
-  const canSave = rateLimitStatus.canSave;
+  // Verificar estado del límite diario (solo una vez por sesión)
+  await checkDailyLimitOnce();
+  // Usar el estado global actual, que puede haber cambiado después de un intento de guardado
+  const canSave = canSaveScore;
 
   // fondo responsive
   createResponsiveBackground("fondo-perdido");
@@ -841,10 +759,13 @@ scene("perdido", async () => {
       z(1),
     ]);
     add([
-      text(`Registro de puntuaciones alcanzado.\nMáximo de 5 por día.\nIntenta mañana 🍻`, {
-        size: 22,
-        align: "center",
-      }),
+      text(
+        `Registro de puntuaciones alcanzado.\nMáximo de ${MAX_DAILY_ATTEMPTS} por día.\nIntenta mañana 🍻`,
+        {
+          size: 22,
+          align: "center",
+        }
+      ),
       pos(btnGuardar),
       anchor("center"),
       color(0, 0, 0),
@@ -905,27 +826,12 @@ scene("teclado", () => {
     z(2),
   ]);
 
-  // Para desktop: mantener los controles de teclado existentes
-  if (!isMobile) {
-    const letras = "abcdefghijklmnopqrstuvwxyz0123456789";
-
-    for (const letra of letras) {
-      onKeyPress(letra, () => {
-        nombre += letra;
-        actualizarNombre();
-      });
-    }
-
-    onKeyPress("space", () => {
-      nombre += " ";
-      actualizarNombre();
-    });
-
-    onKeyPress("backspace", () => {
-      nombre = nombre.slice(0, -1);
-      actualizarNombre();
-    });
-  }
+  // Configurar controles de entrada de texto usando el módulo modular
+  setupTextInputControls(
+    actualizarNombre,
+    (char: string) => { nombre += char; },
+    () => { nombre = nombre.slice(0, -1); }
+  );
 
   // puntuación
   add([
@@ -994,10 +900,25 @@ scene("teclado", () => {
       ]);
 
       await saveScore(nombre, score);
+      
+      // Actualizar estado global después de guardar exitosamente
+      attemptsToday++;
+      if (attemptsToday >= MAX_DAILY_ATTEMPTS) {
+        canSaveScore = false;
+        console.log(`🚫 Límite diario alcanzado después de guardar puntaje (${attemptsToday}/${MAX_DAILY_ATTEMPTS})`);
+      }
+      
       track("score_saved", { score: score, player_name: nombre });
       go("highScores");
     } catch (error) {
       console.error("Error al guardar la puntuación:", error);
+      
+      // Si es error de límite diario, actualizar estado global
+      if (error instanceof Error && error.message.includes("Límite diario alcanzado")) {
+        canSaveScore = false;
+        attemptsToday = MAX_DAILY_ATTEMPTS; // Marcar como límite alcanzado
+        console.log(`🚫 Estado global actualizado: Límite diario alcanzado (${attemptsToday}/${MAX_DAILY_ATTEMPTS})`);
+      }
     }
   });
 });
@@ -1086,9 +1007,7 @@ scene("highScores", async () => {
     ]);
 
     // usar teclado para reiniciar
-    onKeyPress("enter", () => {
-      window.location.reload();
-    });
+    setupNavigationControls(() => window.location.reload());
 
     // reiniciar juegos
     startBtn.onClick(() => {
@@ -1098,6 +1017,5 @@ scene("highScores", async () => {
     console.error("Error al obtener las puntuaciones:", error);
   }
 });
-// go("highScores");
-// DESCOMENTAR AL FINAL
+
 go("menu");

@@ -47,11 +47,11 @@ const db = getFirestore(app);
 // Función para guardar puntaje
 export async function saveScore(nombre: string, puntuacion: string) {
   try {
-    // Obtener IP del cliente
-    const clientIP = getClientIP();
+    // Obtener ID del cliente
+    const clientID = getClientID();
     
     // Verificar límite diario
-    const canSave = await checkAndUpdateRateLimit(clientIP);
+    const canSave = await checkAndUpdateRateLimit(clientID);
     
     if (!canSave) {
       throw new Error("RATE_LIMIT_EXCEEDED");
@@ -61,9 +61,9 @@ export async function saveScore(nombre: string, puntuacion: string) {
       nombre,
       puntuacion: parseInt(puntuacion),
       createdAt: new Date(),
-      clientIP: clientIP, // Guardamos la IP para referencia
+      clientID: clientID, // Guardamos el ID para referencia
     });
-    console.log("Puntaje guardado");
+    
     return docRef.id;
   } catch (error) {
     console.error("Error guardando puntaje:", error);
@@ -74,8 +74,6 @@ export async function saveScore(nombre: string, puntuacion: string) {
 // Función para obtener top10 puntajes
 export async function getTopScores() {
   try {
-    console.log('Obteniendo puntuaciones...'); // Debug
-    
     const q = query(
       collection(db, 'puntuacionGlobal'), 
       orderBy('puntuacion', 'desc'), 
@@ -87,7 +85,6 @@ export async function getTopScores() {
     
     querySnapshot.forEach((doc) => {
       const data = doc.data();
-      console.log('Documento encontrado:', data); // Debug
       
       puntuaciones.push({
         nombre: data.nombre || 'Anónimo',
@@ -95,7 +92,6 @@ export async function getTopScores() {
       });
     });
     
-    console.log('Puntuaciones obtenidas:', puntuaciones); // Debug
     return puntuaciones;
   } catch (error) {
     console.error('Error al obtener puntuaciones:', error);
@@ -103,35 +99,32 @@ export async function getTopScores() {
   }
 }
 
-// Función para obtener la IP del cliente (simulada en frontend)
-export function getClientIP(): string {
+// Función para obtener el ID del cliente (simulado en frontend)
+export function getClientID(): string {
   // En un entorno real de producción, esto debería manejarse en el backend
-  // Por ahora, usaremos una combinación de navegador + timestamp del día para simular IP única
+  // Por ahora, usaremos una combinación de navegador + timestamp del día para simular ID único
   const userAgent = navigator.userAgent;
   const today = new Date().toDateString(); // Cambia cada día
   const simulated = btoa(userAgent + today).substring(0, 12);
-  const clientIP = `sim_${simulated}`;
+  const clientID = `sim_${simulated}`;
   
-  console.log('🔍 DEBUG - getClientIP():');
-  console.log('  - UserAgent:', userAgent.substring(0, 50) + '...');
-  console.log('  - Today:', today);
-  console.log('  - Generated IP:', clientIP);
-  
-  return clientIP;
+  return clientID;
 }
 
 // Función para obtener la clave del documento de rate limiting
-function getRateLimitKey(ip: string): string {
+function getRateLimitKey(clientID: string): string {
   const today = new Date().toDateString(); // YYYY-MM-DD formato
-  return `${ip}_${today}`;
+  return `${clientID}_${today}`;
 }
 
 // Constante para el límite máximo diario
-const MAX_DAILY_ATTEMPTS = 5;
+export const MAX_DAILY_ATTEMPTS = 5;
+
+
 
 // Función interna para obtener el estado del rate limiting
-async function getRateLimitDocument(ip: string) {
-  const rateLimitKey = getRateLimitKey(ip);
+async function getRateLimitDocument(clientID: string) {
+  const rateLimitKey = getRateLimitKey(clientID);
   const rateLimitRef = doc(db, "rateLimiting", rateLimitKey);
   const rateLimitDoc = await getDoc(rateLimitRef);
   
@@ -141,25 +134,16 @@ async function getRateLimitDocument(ip: string) {
 // Función para verificar el estado actual del rate limiting (usando localStorage como fallback)
 export async function checkRateLimitStatus(ip?: string): Promise<{canSave: boolean, remainingAttempts: number, totalAttempts: number}> {
   try {
-    const clientIP = ip || getClientIP();
-    const rateLimitKey = getRateLimitKey(clientIP);
-    
-    console.log('🔍 DEBUG - checkRateLimitStatus():');
-    console.log('  - Client IP:', clientIP);
-    console.log('  - Rate limit key:', rateLimitKey);
+    const clientID = ip || getClientID();
+    const rateLimitKey = getRateLimitKey(clientID);
     
     // Intentar Firebase primero
     try {
-      const { rateLimitDoc } = await getRateLimitDocument(clientIP);
-      console.log('  - Using Firebase, Document exists:', rateLimitDoc.exists());
+      const { rateLimitDoc } = await getRateLimitDocument(clientID);
       
       if (rateLimitDoc.exists()) {
         const data = rateLimitDoc.data();
         const currentCount = data.count || 0;
-        
-        console.log('  - Current count:', currentCount);
-        console.log('  - Max attempts:', MAX_DAILY_ATTEMPTS);
-        console.log('  - Can save:', currentCount < MAX_DAILY_ATTEMPTS);
         
         return {
           canSave: currentCount < MAX_DAILY_ATTEMPTS,
@@ -167,7 +151,6 @@ export async function checkRateLimitStatus(ip?: string): Promise<{canSave: boole
           totalAttempts: currentCount
         };
       } else {
-        console.log('  - No Firebase record, can save');
         return {
           canSave: true,
           remainingAttempts: MAX_DAILY_ATTEMPTS,
@@ -175,19 +158,29 @@ export async function checkRateLimitStatus(ip?: string): Promise<{canSave: boole
         };
       }
     } catch (firebaseError) {
-      console.log('  - Firebase error, using localStorage fallback');
       // Usar localStorage como fallback
-      const localData = localStorage.getItem(rateLimitKey);
-      const currentCount = localData ? parseInt(localData) : 0;
+      const localKey = `rateLimit_${rateLimitKey}`;
+      const localData = localStorage.getItem(localKey);
       
-      console.log('  - LocalStorage count:', currentCount);
-      console.log('  - Max attempts:', MAX_DAILY_ATTEMPTS);
-      console.log('  - Can save:', currentCount < MAX_DAILY_ATTEMPTS);
+      if (localData) {
+        try {
+          const { count } = JSON.parse(localData);
+          
+          return {
+            canSave: count < MAX_DAILY_ATTEMPTS,
+            remainingAttempts: Math.max(0, MAX_DAILY_ATTEMPTS - count),
+            totalAttempts: count
+          };
+        } catch (parseError) {
+          // Error parsing localStorage, asumir clean slate
+        }
+      }
       
+      // Si no hay datos locales o hay error, asumir que puede guardar
       return {
-        canSave: currentCount < MAX_DAILY_ATTEMPTS,
-        remainingAttempts: Math.max(0, MAX_DAILY_ATTEMPTS - currentCount),
-        totalAttempts: currentCount
+        canSave: true,
+        remainingAttempts: MAX_DAILY_ATTEMPTS,
+        totalAttempts: 0
       };
     }
   } catch (error) {
@@ -202,25 +195,17 @@ export async function checkRateLimitStatus(ip?: string): Promise<{canSave: boole
 }
 
 // Función para verificar y actualizar el contador de rate limiting
-export async function checkAndUpdateRateLimit(ip: string): Promise<boolean> {
+export async function checkAndUpdateRateLimit(clientID: string): Promise<boolean> {
+  const rateLimitKey = getRateLimitKey(clientID);
+  
   try {
-    const rateLimitKey = getRateLimitKey(ip);
-    const { rateLimitRef, rateLimitDoc } = await getRateLimitDocument(ip);
-    
-    console.log('🔍 DEBUG - checkAndUpdateRateLimit():');
-    console.log('  - IP:', ip);
-    console.log('  - Rate limit key:', rateLimitKey);
-    console.log('  - Document exists:', rateLimitDoc.exists());
+    const { rateLimitRef, rateLimitDoc } = await getRateLimitDocument(clientID);
     
     if (rateLimitDoc.exists()) {
       const data = rateLimitDoc.data();
       const currentCount = data.count || 0;
       
-      console.log('  - Current count BEFORE increment:', currentCount);
-      console.log('  - Max attempts:', MAX_DAILY_ATTEMPTS);
-      
       if (currentCount >= MAX_DAILY_ATTEMPTS) {
-        console.log(`❌ Límite diario alcanzado para IP: ${ip}`);
         return false; // Límite alcanzado
       }
       
@@ -229,26 +214,53 @@ export async function checkAndUpdateRateLimit(ip: string): Promise<boolean> {
         count: increment(1),
         lastUpdated: new Date()
       });
-      
-      console.log('  - ✅ Counter incremented successfully');
     } else {
-      console.log('  - Creating new rate limit document');
       // Crear nuevo documento con contador = 1
       await setDoc(rateLimitRef, {
-        ip: ip,
+        clientID: clientID,
         date: new Date().toDateString(),
         count: 1,
         createdAt: new Date(),
         lastUpdated: new Date()
       });
-      
-      console.log('  - ✅ New document created with count = 1');
     }
     
     return true; // Permitir guardar el puntaje
   } catch (error) {
-    console.error('❌ Error verificando rate limit:', error);
-    // En caso de error, permitir el guardado (fail open)
-    return true;
+    console.error('❌ Error verificando rate limit en Firebase:', error);
+    
+    // Usar localStorage como respaldo
+    try {
+      const localKey = `rateLimit_${rateLimitKey}`;
+      const localData = localStorage.getItem(localKey);
+      
+      if (localData) {
+        const { count } = JSON.parse(localData);
+        
+        if (count >= MAX_DAILY_ATTEMPTS) {
+          return false;
+        }
+        
+        // Incrementar contador local
+        localStorage.setItem(localKey, JSON.stringify({
+          count: count + 1,
+          date: new Date().toDateString(),
+          lastUpdated: new Date().toISOString()
+        }));
+      } else {
+        // Crear nuevo registro local
+        localStorage.setItem(localKey, JSON.stringify({
+          count: 1,
+          date: new Date().toDateString(),
+          lastUpdated: new Date().toISOString()
+        }));
+      }
+      
+      return true;
+    } catch (localError) {
+      console.error('❌ Error en localStorage fallback:', localError);
+      // Si todo falla, permitir el guardado (fail open)
+      return true;
+    }
   }
 }
