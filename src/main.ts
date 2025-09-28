@@ -384,6 +384,14 @@ loadSprite("fondo", "./sprites/fondo-juego.png");
 scene("juego", () => {
   // gravedad → va dentro de la escena
   setGravity(GAME_CONFIG.GRAVITY);
+  alert(
+    `${isMobile ? "Toque el botón 'pausa' para detener el juego. Presione 'Enter' para continuar." : "Presione tecla 'p' para debug. Presione 'a' para pausar. Presione 'Enter' para continuar."}`
+  );
+
+  // pausa
+  onKeyPress("a", () => {
+    alert("Juego en pausa. Presione 'Aceptar' para continuar.");
+  });
 
   // personaje principal y acciones
   const cerveza = add([
@@ -454,16 +462,38 @@ scene("juego", () => {
     z(6),
   ]);
 
+  // Botón de pausa para móvil (esquina superior derecha)
+  if (isMobile) {
+    const pauseBtn = add([
+      rect(120, 60),
+      pos(width() - 16, 16),
+      anchor("topright"),
+      color(200, 100, 100),
+      outline(3),
+      area(),
+      z(7),
+    ]);
+    
+    // texto del botón de pausa
+    add([
+      text("pausa", { size: 28 }),
+      pos(width() - 76, 46),
+      anchor("center"),
+      color(255, 255, 255),
+      z(8),
+    ]);
+
+    // funcionalidad del botón de pausa
+    pauseBtn.onClick(() => {
+      alert("Juego en pausa. Presione 'Aceptar' para continuar.");
+    });
+  }
+
   // Configurar controles del juego usando el módulo modular
-  const { jumpCount, maxJumps } = setupGameControls({
+  setupGameControls({
     cerveza,
     enableKeyboard: true,
     enableMobile: true,
-  });
-
-  // Resetear contador al tocar el suelo: doble mecanismo
-  cerveza.onCollide("ground", () => {
-    // jumpCount = 0; // Esto lo maneja el módulo automáticamente
   });
 
   // aparición de otros personajes
