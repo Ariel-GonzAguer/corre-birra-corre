@@ -8,6 +8,7 @@ import {
   getTopScores,
   MAX_DAILY_ATTEMPTS,
   getRateLimitStatus,
+  sanitizePlayerName,
 } from "./servicios/apiClient";
 
 // importar utils
@@ -954,6 +955,10 @@ scene("teclado", () => {
         alert("Por favor, ingrese un nombre válido.");
         return;
       }
+
+      const sanitizedNombre = sanitizePlayerName(nombre);
+      nombre = sanitizedNombre;
+      actualizarNombre();
       destroy(siguienteBtnText);
       destroy(siguienteBtn);
       add([
@@ -974,12 +979,15 @@ scene("teclado", () => {
 
       // En móvil no se guarda en Firebase, solo ir directo a highScores
       if (isMobile) {
-        track("score_not_saved_mobile", { score: score, player_name: nombre });
+        track("score_not_saved_mobile", {
+          score: score,
+          player_name: sanitizedNombre,
+        });
         go("highScores");
         return;
       }
 
-      await saveScore(nombre, score);
+      await saveScore(sanitizedNombre, score);
 
       // Actualizar estado global después de guardar exitosamente
       attemptsToday++;
@@ -992,7 +1000,10 @@ scene("teclado", () => {
         });
       }
 
-      track("score_saved", { score: score, player_name: nombre });
+      track("score_saved", {
+        score: score,
+        player_name: sanitizedNombre,
+      });
       go("highScores");
     } catch (error) {
       console.error("Error al guardar la puntuación:", error);
