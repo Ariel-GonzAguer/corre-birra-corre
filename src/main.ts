@@ -342,8 +342,8 @@ scene("como-jugar", () => {
 
   // botón iniciar
   const btnPos = isMobile
-    ? vec2(width() / 2, height() / 2 + 500)
-    : vec2(width() / 2, height() / 2 + 200);
+    ? vec2(width() / 2, height() / 2 + 750)
+    : vec2(width() / 2, height() / 2 + 250);
   const startBtn = add([
     rect(isMobile ? 300 : 250, 60),
     pos(btnPos),
