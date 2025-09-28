@@ -7,10 +7,8 @@ import {
   saveScore,
   getTopScores,
   MAX_DAILY_ATTEMPTS,
+  getRateLimitStatus,
 } from "./servicios/apiClient";
-
-// importar funciones firebase para límite diario
-import { getRateLimitStatus } from "./servicios/apiClient";
 
 // importar utils
 import { createResponsiveBackground } from "./utils/utils";
@@ -385,12 +383,14 @@ scene("juego", () => {
   // gravedad → va dentro de la escena
   setGravity(GAME_CONFIG.GRAVITY);
   alert(
-    `${isMobile ? "Toque el botón 'pausa' para detener el juego. Presione 'Enter' para continuar." : "Presione tecla 'p' para debug. Presione 'a' para pausar. Presione 'Enter' para continuar."}`
+    isMobile
+      ? "Toque el botón 'pausa' para detener el juego. Presione 'OK' para continuar."
+      : "Presione la tecla 'a' para pausar. Presione 'OK' para continuar."
   );
 
   // pausa
   onKeyPress("a", () => {
-    alert("Juego en pausa. Presione 'Aceptar' para continuar.");
+    alert("Juego en pausa. Presione 'OK' para continuar.");
   });
 
   // personaje principal y acciones
@@ -985,9 +985,11 @@ scene("teclado", () => {
       attemptsToday++;
       if (attemptsToday >= MAX_DAILY_ATTEMPTS) {
         canSaveScore = false;
-        console.log(
-          `🚫 Límite diario alcanzado después de guardar puntaje (${attemptsToday}/${MAX_DAILY_ATTEMPTS})`
-        );
+        track("daily_limit_reached", {
+          origin: "post_save",
+          attempts: attemptsToday,
+          limit: MAX_DAILY_ATTEMPTS,
+        });
       }
 
       track("score_saved", { score: score, player_name: nombre });
@@ -1002,9 +1004,11 @@ scene("teclado", () => {
       ) {
         canSaveScore = false;
         attemptsToday = MAX_DAILY_ATTEMPTS; // Marcar como límite alcanzado
-        console.log(
-          `🚫 Estado global actualizado: Límite diario alcanzado (${attemptsToday}/${MAX_DAILY_ATTEMPTS})`
-        );
+        track("daily_limit_reached", {
+          origin: "error_handler",
+          attempts: attemptsToday,
+          limit: MAX_DAILY_ATTEMPTS,
+        });
       }
     }
   });

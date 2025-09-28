@@ -14,7 +14,7 @@ export const isMobile =
 /**
  * Configuración de controles de teclado para el personaje principal
  */
-export function setupKeyboardControls(cerveza: any): { jumpCount: number; maxJumps: number } {
+export function setupKeyboardControls(cerveza: any): void {
   let jumpCount = 0;
   const maxJumps = GAME_CONFIG.MAX_JUMPS;
 
@@ -45,18 +45,17 @@ export function setupKeyboardControls(cerveza: any): { jumpCount: number; maxJum
     }
   });
 
-  return { jumpCount, maxJumps };
 }
 
 /**
  * Configuración de controles táctiles para dispositivos móviles
  */
-export function setupMobileControls(cerveza: any): { jumpCount: number; maxJumps: number } {
+export function setupMobileControls(cerveza: any): void {
   let jumpCount = 0;
   const maxJumps = GAME_CONFIG.MAX_JUMPS;
 
   if (!isMobile) {
-    return { jumpCount, maxJumps };
+    return;
   }
 
   // Botón de salto (centro-derecha de la mitad de pantalla)
@@ -175,7 +174,6 @@ export function setupMobileControls(cerveza: any): { jumpCount: number; maxJumps
     }
   });
 
-  return { jumpCount, maxJumps };
 }
 
 /**
@@ -241,27 +239,14 @@ export interface GameControlsConfig {
 /**
  * Función helper que configura todos los controles del juego
  */
-export function setupGameControls(config: GameControlsConfig): { jumpCount: number; maxJumps: number } {
+export function setupGameControls(config: GameControlsConfig): void {
   const { cerveza, enableKeyboard = true, enableMobile = true } = config;
-  
-  let controlsResult = { jumpCount: 0, maxJumps: GAME_CONFIG.MAX_JUMPS };
 
   if (enableKeyboard) {
-    controlsResult = setupKeyboardControls(cerveza);
+    setupKeyboardControls(cerveza);
   }
 
   if (enableMobile && isMobile) {
-    controlsResult = setupMobileControls(cerveza);
+    setupMobileControls(cerveza);
   }
-
-  return controlsResult;
 }
-
-export default {
-  setupKeyboardControls,
-  setupMobileControls,
-  setupTextInputControls,
-  setupNavigationControls,
-  setupGameControls,
-  isMobile
-};

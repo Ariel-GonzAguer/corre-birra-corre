@@ -21,10 +21,7 @@ export async function saveScore(
   puntuacion: number
 ): Promise<string> {
   try {
-    console.log("Guardando puntuación:", { nombre, puntuacion });
-    
     const docId = await firebaseSaveScore(nombre.trim(), puntuacion.toString());
-    console.log("Puntuación guardada con ID:", docId);
     return docId;
   } catch (error: any) {
     console.error("Error saving score:", error);
@@ -40,10 +37,7 @@ export async function saveScore(
 
 export async function getTopScores(limit: number = 25): Promise<Score[]> {
   try {
-    console.log("Obteniendo puntuaciones...");
-    
     const scores = await firebaseGetTopScores();
-    console.log("Puntuaciones obtenidas:", scores);
     return scores.slice(0, limit); // Limitamos el resultado si es necesario
   } catch (error) {
     console.error("Error getting scores:", error);
@@ -53,15 +47,13 @@ export async function getTopScores(limit: number = 25): Promise<Score[]> {
 
 export async function getRateLimitStatus(): Promise<RateLimitStatus> {
   try {
-    const status = await checkRateLimitStatus();
-    
-    return status;
+    return await checkRateLimitStatus();
   } catch (error) {
     console.error("Error checking rate limit status:", error);
     // En caso de error, asumir que puede guardar
     return {
       canSave: true,
-      remainingAttempts: 10,
+      remainingAttempts: MAX_DAILY_ATTEMPTS,
       totalAttempts: 0
     };
   }
