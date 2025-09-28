@@ -787,7 +787,7 @@ scene("perdido", async () => {
     ]);
   } else if (isMobile && score > 0) {
     const btnVerPuntuaciones = add([
-      rect(300, 60),
+      rect(750, 70),
       pos(vec2(width() / 2, height() / 2 + 750)),
       anchor("center"),
       color(255, 255, 0),
