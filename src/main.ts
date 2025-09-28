@@ -776,7 +776,7 @@ scene("perdido", async () => {
       text(
         `Registro de puntuaciones alcanzado.\nMáximo de ${MAX_DAILY_ATTEMPTS} por día.\nIntenta mañana 🍻`,
         {
-          size: 22,
+          size: 28,
           align: "center",
         }
       ),
@@ -787,7 +787,7 @@ scene("perdido", async () => {
     ]);
   } else if (isMobile && score > 0) {
     const btnVerPuntuaciones = add([
-      rect(500, 100),
+      rect(650, 250),
       pos(btnGuardar),
       anchor("center"),
       color(255, 255, 0),
@@ -799,8 +799,9 @@ scene("perdido", async () => {
       text(
         "Ver Puntuaciones máximas 🚀.\nEn dispositivos móviles no se pueden registrar puntajes, solo en desktop.",
         {
-          size: 22,
+          size: 28,
           align: "center",
+          width: 480,
         }
       ),
       pos(btnGuardar),
