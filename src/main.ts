@@ -3,7 +3,11 @@ import kaplay from "kaplay";
 import "kaplay/global";
 
 // Importar funciones de Firebase
-import { saveScore, getTopScores, MAX_DAILY_ATTEMPTS } from "./servicios/apiClient";
+import {
+  saveScore,
+  getTopScores,
+  MAX_DAILY_ATTEMPTS,
+} from "./servicios/apiClient";
 
 // importar funciones firebase para límite diario
 import { getRateLimitStatus } from "./servicios/apiClient";
@@ -11,11 +15,11 @@ import { getRateLimitStatus } from "./servicios/apiClient";
 // importar utils
 import { createResponsiveBackground } from "./utils/utils";
 import { GAME_CONFIG, UI_CONFIG } from "./utils/config";
-import { 
-  setupGameControls, 
-  setupTextInputControls, 
+import {
+  setupGameControls,
+  setupTextInputControls,
   setupNavigationControls,
-  isMobile 
+  isMobile,
 } from "./utils/controls";
 
 // Importar Vercel Analytics
@@ -24,8 +28,6 @@ import { inject, track } from "@vercel/analytics";
 // Inicializar Vercel Analytics
 // NOTA: Las analíticas solo funcionan en producción (desplegado en Vercel)
 inject();
-
-
 
 kaplay({
   debugKey: GAME_CONFIG.DEBUGKEY,
@@ -63,7 +65,7 @@ async function checkDailyLimitOnce() {
       dailyLimitStatus = {
         canSave: false,
         remainingAttempts: 0,
-        totalAttempts: 0
+        totalAttempts: 0,
       };
     } else {
       // Solo en desktop verificamos Firebase
@@ -76,7 +78,7 @@ async function checkDailyLimitOnce() {
   return {
     canSave: canSaveScore,
     attemptsToday: attemptsToday,
-    status: dailyLimitStatus
+    status: dailyLimitStatus,
   };
 }
 
@@ -453,10 +455,10 @@ scene("juego", () => {
   ]);
 
   // Configurar controles del juego usando el módulo modular
-  const { jumpCount, maxJumps } = setupGameControls({ 
-    cerveza, 
-    enableKeyboard: true, 
-    enableMobile: true 
+  const { jumpCount, maxJumps } = setupGameControls({
+    cerveza,
+    enableKeyboard: true,
+    enableMobile: true,
   });
 
   // Resetear contador al tocar el suelo: doble mecanismo
@@ -783,6 +785,34 @@ scene("perdido", async () => {
       color(0, 0, 0),
       z(2),
     ]);
+  } else if (isMobile && score > 0) {
+    const btnVerPuntuaciones = add([
+      rect(500, 100),
+      pos(btnGuardar),
+      anchor("center"),
+      color(255, 255, 0),
+      outline(6),
+      area(),
+      z(1),
+    ]);
+    add([
+      text(
+        "Ver Puntuaciones máximas 🚀.\nEn dispositivos móviles no se pueden registrar puntajes, solo en desktop.",
+        {
+          size: 22,
+          align: "center",
+        }
+      ),
+      pos(btnGuardar),
+      anchor("center"),
+      color(0, 0, 0),
+      z(2),
+    ]);
+
+    // ver puntuaciones altas
+    btnVerPuntuaciones.onClick(() => {
+      go("highScores");
+    });
   }
 
   // reiniciar juego
@@ -841,8 +871,12 @@ scene("teclado", () => {
   // Configurar controles de entrada de texto usando el módulo modular
   setupTextInputControls(
     actualizarNombre,
-    (char: string) => { nombre += char; },
-    () => { nombre = nombre.slice(0, -1); }
+    (char: string) => {
+      nombre += char;
+    },
+    () => {
+      nombre = nombre.slice(0, -1);
+    }
   );
 
   // puntuación
@@ -917,26 +951,33 @@ scene("teclado", () => {
         go("highScores");
         return;
       }
-      
+
       await saveScore(nombre, score);
-      
+
       // Actualizar estado global después de guardar exitosamente
       attemptsToday++;
       if (attemptsToday >= MAX_DAILY_ATTEMPTS) {
         canSaveScore = false;
-        console.log(`🚫 Límite diario alcanzado después de guardar puntaje (${attemptsToday}/${MAX_DAILY_ATTEMPTS})`);
+        console.log(
+          `🚫 Límite diario alcanzado después de guardar puntaje (${attemptsToday}/${MAX_DAILY_ATTEMPTS})`
+        );
       }
-      
+
       track("score_saved", { score: score, player_name: nombre });
       go("highScores");
     } catch (error) {
       console.error("Error al guardar la puntuación:", error);
-      
+
       // Si es error de límite diario, actualizar estado global
-      if (error instanceof Error && error.message.includes("Límite diario alcanzado")) {
+      if (
+        error instanceof Error &&
+        error.message.includes("Límite diario alcanzado")
+      ) {
         canSaveScore = false;
         attemptsToday = MAX_DAILY_ATTEMPTS; // Marcar como límite alcanzado
-        console.log(`🚫 Estado global actualizado: Límite diario alcanzado (${attemptsToday}/${MAX_DAILY_ATTEMPTS})`);
+        console.log(
+          `🚫 Estado global actualizado: Límite diario alcanzado (${attemptsToday}/${MAX_DAILY_ATTEMPTS})`
+        );
       }
     }
   });
