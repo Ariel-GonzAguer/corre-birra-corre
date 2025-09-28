@@ -56,9 +56,21 @@ let dailyLimitStatus: any = null;
 // Función para verificar el límite diario solo una vez por sesión
 async function checkDailyLimitOnce() {
   if (!dailyLimitChecked) {
-    dailyLimitStatus = await getRateLimitStatus();
-    canSaveScore = dailyLimitStatus.canSave;
-    attemptsToday = dailyLimitStatus.totalAttempts;
+    // En móvil no se puede guardar puntajes, así que no verificamos Firebase
+    if (isMobile) {
+      canSaveScore = false;
+      attemptsToday = 0;
+      dailyLimitStatus = {
+        canSave: false,
+        remainingAttempts: 0,
+        totalAttempts: 0
+      };
+    } else {
+      // Solo en desktop verificamos Firebase
+      dailyLimitStatus = await getRateLimitStatus();
+      canSaveScore = dailyLimitStatus.canSave;
+      attemptsToday = dailyLimitStatus.totalAttempts;
+    }
     dailyLimitChecked = true;
   }
   return {
@@ -276,7 +288,7 @@ scene("como-jugar", () => {
   if (isMobile) {
     add([
       text(
-        "Instrucciones\n- Use el botón ↑ para saltar. ¡Puede hacer saltos dobles!\n- Use las flechas ← y → para moverse hacia atrás y adelante, respectivamente.\nImportante: Si retrocede mucho, la cerveza desaparece y hay que reiniciar el juego.\n- Si colisiona con un borracho pierde una vida ♥️.\n- Si toca una bacteria pierde el juego.\n- Si toca un lúpulo obtiene protección contra el siguiente borracho que llegue.\n- Si toca la cebada obtiene una vida extra.\nImportante: No use el dispositivo en modo horizontal.",
+        "Instrucciones\n- Use el botón ↑ para saltar. ¡Puede hacer saltos dobles!\n- Use las flechas ← y → para moverse hacia atrás y adelante, respectivamente.\nImportante: Si retrocede mucho, la cerveza desaparece y hay que reiniciar el juego.\n- Si colisiona con un borracho pierde una vida ♥️.\n- Si toca una bacteria pierde el juego.\n- Si toca un lúpulo obtiene protección contra el siguiente borracho que llegue.\n- Si toca la cebada obtiene una vida extra.\nImportante: No use el dispositivo en modo horizontal.\n🎮 En dispositivos móviles no se pueden registrar puntajes, solo en desktop.",
         {
           size: 36,
           color: rgb(255, 255, 255),
@@ -899,6 +911,13 @@ scene("teclado", () => {
         z(2),
       ]);
 
+      // En móvil no se guarda en Firebase, solo ir directo a highScores
+      if (isMobile) {
+        track("score_not_saved_mobile", { score: score, player_name: nombre });
+        go("highScores");
+        return;
+      }
+      
       await saveScore(nombre, score);
       
       // Actualizar estado global después de guardar exitosamente
