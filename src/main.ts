@@ -1000,7 +1000,7 @@ scene("highScores", async () => {
 
   // fondo para el texto de título
   add([
-    rect(700, 100),
+    rect(750, 100),
     pos(width() / 2, 100),
     anchor("center"),
     color(0, 0, 0),
@@ -1016,7 +1016,7 @@ scene("highScores", async () => {
         text("No hay puntuaciones registradas.", { size: 32 }),
         pos(width() / 2, height() / 2),
         anchor("center"),
-        color(255, 255, 255),
+        color(255, 0, 0),
         z(3),
       ]);
     } else {
@@ -1045,7 +1045,7 @@ scene("highScores", async () => {
     // botón reiniciar
     const btnPos = vec2(width() / 2, height() - 100);
     const startBtn = add([
-      rect(350, 60),
+      rect(370, 60),
       pos(btnPos),
       anchor("center"),
       color(40, 180, 40),
