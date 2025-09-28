@@ -788,7 +788,7 @@ scene("perdido", async () => {
   } else if (isMobile && score > 0) {
     const btnVerPuntuaciones = add([
       rect(650, 250),
-      pos(btnGuardar),
+      pos(width() / 2, height() / 2 + 300),
       anchor("center"),
       color(255, 255, 0),
       outline(6),
@@ -797,14 +797,14 @@ scene("perdido", async () => {
     ]);
     add([
       text(
-        "Ver Puntuaciones máximas 🚀.\nEn dispositivos móviles no se pueden registrar puntajes, solo en desktop.",
+        "Ver Puntuaciones máximas.\n\nEn dispositivos móviles no se pueden registrar puntajes, solo en desktop.",
         {
-          size: 28,
+          size: 32,
           align: "center",
-          width: 480,
+          width: 500,
         }
       ),
-      pos(btnGuardar),
+      pos(width() / 2, height() / 2 + 300),
       anchor("center"),
       color(0, 0, 0),
       z(2),
