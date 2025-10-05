@@ -1,5 +1,6 @@
 import { defineConfig } from "vite";
 import checker from 'vite-plugin-checker';
+import imagemin from 'vite-plugin-imagemin';
 
 const kaplayCongrats = () => {
     return {
@@ -22,7 +23,7 @@ export default defineConfig({
     },
     build: {
         // disable this for low bundle sizes
-        sourcemap: true,
+        sourcemap: false,
         rollupOptions: {
             output: {
                 manualChunks: {
@@ -35,5 +36,6 @@ export default defineConfig({
         // Disable messages removing this line
         kaplayCongrats(),
         checker({ typescript: true }),
+        imagemin(),
     ],
 });
